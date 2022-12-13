@@ -1,5 +1,5 @@
 {
-  "name": "moveable",
+  "name": "moveable-fork",
   "version": "0.42.1",
   "description": "Moveable is Draggable, Resizable, Scalable, Rotatable, Warpable, Pinchable, Groupable, Snappable.",
   "main": "./dist/moveable.cjs.js",
