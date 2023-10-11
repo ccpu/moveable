@@ -17,7 +17,7 @@ import {
 } from "../types";
 import { triggerChildGesto } from "../groupUtils";
 import { startCheckSnapDrag } from "./Snappable";
-import { IObject, getRad, throttle, throttleArray } from "@daybrush/utils";
+import { getRad, throttle, throttleArray } from "@daybrush/utils";
 import { checkSnapBoundsDrag } from "./snappable/snapBounds";
 import { TINY_NUM } from "../consts";
 
@@ -28,32 +28,36 @@ import { TINY_NUM } from "../consts";
  */
 export default {
     name: "draggable",
-    props: {
-        draggable: Boolean,
-        throttleDrag: Number,
-        throttleDragRotate: Number,
-        startDragRotate: Number,
-        edgeDraggable: Boolean,
-    } as const,
-    events: {
-        onDragStart: "dragStart",
-        onDrag: "drag",
-        onDragEnd: "dragEnd",
-        onDragGroupStart: "dragGroupStart",
-        onDragGroup: "dragGroup",
-        onDragGroupEnd: "dragGroupEnd",
-    } as const,
+    props: [
+        "draggable",
+        "throttleDrag",
+        "throttleDragRotate",
+        "hideThrottleDragRotateLine",
+        "startDragRotate",
+        "edgeDraggable",
+    ] as const,
+    events: [
+        "dragStart",
+        "drag",
+        "dragEnd",
+        "dragGroupStart",
+        "dragGroup",
+        "dragGroupEnd",
+    ] as const,
     requestStyle(): string[] {
+        return ["left", "top", "right", "bottom"];
+    },
+    requestChildStyle(): string[] {
         return ["left", "top", "right", "bottom"];
     },
     render(
         moveable: MoveableManagerInterface<DraggableProps, DraggableState>,
         React: Renderer,
     ): any[] {
-        const { throttleDragRotate, zoom } = moveable.props;
+        const { hideThrottleDragRotateLine, throttleDragRotate, zoom } = moveable.props;
         const { dragInfo, beforeOrigin } = moveable.getState();
 
-        if (!throttleDragRotate || !dragInfo) {
+        if (hideThrottleDragRotateLine || !throttleDragRotate || !dragInfo) {
             return [];
         }
         const dist = dragInfo.dist;
@@ -99,7 +103,7 @@ export default {
         datas.startValue = [0, 0];
 
         setDragStart(moveable, e);
-        setDefaultTransformIndex(e, "translate");
+        setDefaultTransformIndex(moveable, e, "translate");
         startCheckSnapDrag(moveable, datas);
 
         datas.prevDist = [0, 0];
@@ -111,7 +115,7 @@ export default {
             set: (translate: number[]) => {
                 datas.startValue = translate;
             },
-            ...fillTransformStartEvent(e),
+            ...fillTransformStartEvent(moveable, e),
         });
         const result = parentEvent || triggerEvent(moveable, "onDragStart", params);
 
@@ -134,9 +138,14 @@ export default {
         if (!e) {
             return;
         }
-        resolveTransformEvent(e, "translate");
+        resolveTransformEvent(moveable, e, "translate");
 
-        const { datas, parentEvent, parentFlag, isPinch, isRequest, deltaOffset } = e;
+        const {
+            datas, parentEvent,
+            parentFlag, isPinch, deltaOffset,
+            useSnap,
+            isRequest,
+        } = e;
         let { distX, distY } = e;
         const { isDrag, prevDist, prevBeforeDist, startValue } = datas;
 
@@ -178,7 +187,8 @@ export default {
             const [verticalInfo, horizontalInfo] = checkSnapBoundsDrag(
                 moveable, distX, distY,
                 throttleDragRotate,
-                isRequest || deltaOffset, datas,
+                (!useSnap && isRequest) || deltaOffset,
+                datas,
             );
             isVerticalSnap = verticalInfo.isSnap;
             isVerticalBound = verticalInfo.isBound;
@@ -393,13 +403,15 @@ export default {
         const rect = moveable.getRect();
         let distX = 0;
         let distY = 0;
+        let useSnap = false;
 
         return {
             isControl: false,
-            requestStart() {
-                return { datas };
+            requestStart(e: Record<string, any>) {
+                useSnap = e.useSnap;
+                return { datas, useSnap };
             },
-            request(e: IObject<any>) {
+            request(e: Record<string, any>) {
                 if ("x" in e) {
                     distX = e.x - rect.left;
                 } else if ("deltaX" in e) {
@@ -411,10 +423,10 @@ export default {
                     distY += e.deltaY;
                 }
 
-                return { datas, distX, distY };
+                return { datas, distX, distY, useSnap };
             },
             requestEnd() {
-                return { datas, isDrag: true };
+                return { datas, isDrag: true, useSnap };
             },
         };
     },

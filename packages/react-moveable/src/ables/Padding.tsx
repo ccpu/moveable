@@ -1,21 +1,21 @@
-import { prefix, makeMatrixCSS } from "../utils";
+import { prefix, makeMatrixCSS, getPaddingBox } from "../utils";
 import { Renderer, MoveableManagerInterface } from "../types";
 import { createWarpMatrix } from "@scena/matrix";
 import { makeAble } from "./AbleManager";
 
 export default makeAble("padding", {
+    props: ["padding"] as const,
     render(moveable: MoveableManagerInterface, React: Renderer): any[] {
         const props = moveable.props;
         if (props.dragArea) {
             return [];
         }
-        const padding = props.padding || {};
         const {
-            left = 0,
-            top = 0,
-            right = 0,
-            bottom = 0,
-        } = padding;
+            left,
+            top,
+            right,
+            bottom,
+        } = getPaddingBox(props.padding || {});
         const {
             renderPoses,
             pos1,

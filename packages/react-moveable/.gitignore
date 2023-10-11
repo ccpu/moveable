@@ -24,3 +24,10 @@ yarn-error.log*
 stories/**/vue3/
 stories/**/vue2/
 stories/**/svelte/
+stories/**/script/
+stories/**/lit/
+stories/**/angular/
+.nyc_output
+test-static
+__snapshots__
+*.stories.mdx

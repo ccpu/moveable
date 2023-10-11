@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
-import { NgxMoveableComponent } from './ngx-moveable.component';
+
+import { NgxLegacyMoveableComponent } from './ngx-moveable.legacy.component';
 
 @NgModule({
-  declarations: [NgxMoveableComponent],
-  imports: [
-  ],
-  exports: [NgxMoveableComponent],
+  declarations: [NgxLegacyMoveableComponent],
+  exports: [NgxLegacyMoveableComponent],
 })
-export class NgxMoveableModule { }
+export class NgxMoveableModule {}

@@ -3,6 +3,251 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.43.3](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.43.1...svelte-moveable@0.43.3) (2023-09-19)
+
+
+### :bug: Bug Fix
+
+* add svelte 4 as a compatible dependency (#1005) ([266872c](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/266872c641dce8d2a2c06e50ac972e116099285a))
+
+
+### :mega: Other
+
+* publish packages ([ecf15ab](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/ecf15ab399bb4d9f6752cb84b0d6b06d15e5c426))
+* update svelte-moveable version ([377f618](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/377f6186c9478c294a05cf830d7a0930eec0436a))
+
+
+
+## [0.43.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.43.0...svelte-moveable@0.43.1) (2023-07-11)
+
+
+### :mega: Other
+
+* publish packages ([27bda8e](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/27bda8ea3d9751847fc073519a832b3464242d3c))
+
+
+
+## [0.43.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.42.2...svelte-moveable@0.43.0) (2023-07-09)
+
+
+### :mega: Other
+
+* publish packages ([25cae7f](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/25cae7f46aa28dcb948a8690fd6062b7e15d72ff))
+
+
+
+## [0.42.2](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.42.1...svelte-moveable@0.42.2) (2023-07-04)
+
+
+### :mega: Other
+
+* publish packages ([9467cf4](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/9467cf45fd2871573df8886eb134c67a8b0f916d))
+
+
+
+## [0.42.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.41.1...svelte-moveable@0.42.1) (2023-07-02)
+
+
+### :mega: Other
+
+* publish packages ([5697e80](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/5697e8050f486a83ea409b856d1f670759ba6910))
+* publish packages ([5e76998](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/5e76998ba0a90efcbb0c2e4fe8030ca47a1842d4))
+
+
+
+## [0.41.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.41.0...svelte-moveable@0.41.1) (2023-06-28)
+
+
+### :house: Code Refactoring
+
+* change rollup to vite ([213f346](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/213f346257289eaec6f3f6f618e8fba33859c384))
+
+
+### :mega: Other
+
+* publish packages ([510d7cd](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/510d7cdf76eef4a17cc75d95634ebcb6d9688f8e))
+
+
+
+## [0.41.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.40.0...svelte-moveable@0.41.0) (2023-06-25)
+
+
+### :mega: Other
+
+* publish packages ([f893cca](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/f893ccaa176d31ef9ddb241d2cd4a1fb098cdae0))
+
+
+
+## [0.40.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.39.9...svelte-moveable@0.40.0) (2023-06-04)
+
+
+### :rocket: New Features
+
+* support svelte type ([2022d49](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/2022d49ae2ebf5daaf21edb4043a557ff3f6eac5))
+
+
+### :mega: Other
+
+* update packages ([8d65572](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/8d65572384ae0fdff288fe78fbeb5d249b070eb7))
+* update packages ([9e137aa](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/9e137aa7455fdf85766ca1ff77dd3d8ea2a4c1c9))
+
+
+
+## [0.39.9](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.39.8...svelte-moveable@0.39.9) (2023-05-16)
+
+
+### :mega: Other
+
+* publish packages ([5bd22bb](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/5bd22bb009e10a4f8032f35c2ae3b490f4d94e5b))
+
+
+
+## [0.39.8](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.39.7...svelte-moveable@0.39.8) (2023-05-15)
+
+
+### :mega: Other
+
+* publish packages ([91aa8bc](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/91aa8bc1bdefc65cde8c032f1c7ba13ca54ad2fa))
+
+
+
+## [0.39.7](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.39.6...svelte-moveable@0.39.7) (2023-05-09)
+
+
+### :mega: Other
+
+* publish packages ([40dd902](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/40dd9022c41244ab009d621861ddc2ac63768748))
+
+
+
+## [0.39.6](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.39.0...svelte-moveable@0.39.6) (2023-05-08)
+
+
+### :rocket: New Features
+
+* update croact version #902 ([e328e21](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/e328e2170438fe27f60f307ae976183fbfb5e96e))
+
+
+### :bug: Bug Fix
+
+* fix files filed #910 #909 #907 ([a4995ab](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/a4995ab1acb3a34974e1d5a20d17fb2ee17ddc0c))
+
+
+### :mega: Other
+
+* publish packages ([d0f0532](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/d0f0532bfb42fe98ee95748839a639fddbe4b9d6))
+* publish packages ([e1e86a9](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/e1e86a95ebff9d18ad7a5ebede3bd5bd66465b5d))
+* publish packages ([60a747e](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/60a747ee3c373f83fb759a8482e2365e77dcb5e8))
+
+
+
+## [0.39.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.38.1...svelte-moveable@0.39.0) (2023-05-01)
+
+
+### :mega: Other
+
+* publish packages ([24934e3](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/24934e317de2e5ff622bd9ab0dec8d75a7c05c48))
+
+
+
+## [0.38.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.38.0...svelte-moveable@0.38.1) (2023-04-16)
+
+
+### :mega: Other
+
+* publish packages ([a623eda](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/a623eda2702067397159742dd0c6ed16b99bbe22))
+
+
+
+## [0.38.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.37.0...svelte-moveable@0.38.0) (2023-04-13)
+
+
+### :bug: Bug Fix
+
+* fix svelte main field #886 ([e5a5f25](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/e5a5f254e3d053f7f26d46cffeac970b98636b01))
+
+
+### :mega: Other
+
+* publish packages ([1177427](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/11774277bafd9c60e9cef3c9a6fa38a3e1c4077d))
+
+
+
+## [0.37.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.36.4...svelte-moveable@0.37.0) (2023-03-26)
+
+
+### :mega: Other
+
+* publish packages ([7580d27](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/7580d272fe857aadfbdbc9df264e0a413dd56588))
+
+
+
+## [0.36.4](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.36.3...svelte-moveable@0.36.4) (2023-03-21)
+
+
+### :memo: Documentation
+
+* fix README ([7426492](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/7426492de210ab6f38d411d96e6d843d7423f555))
+
+
+### :mega: Other
+
+* publish packages ([ae54ef4](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/ae54ef4c660ae789867e4286990f234cc808a379))
+
+
+
+## [0.36.3](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.36.2...svelte-moveable@0.36.3) (2023-03-14)
+
+
+### :memo: Documentation
+
+* fix story url ([8977306](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/897730620480d8e830c4b53401a28d03b42b9a5f))
+
+
+### :mega: Other
+
+* update packages ([5b03d09](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/5b03d09a0cd298d47597fc8c8c9c6fdd4cd5a267))
+
+
+
+## [0.36.2](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.36.0...svelte-moveable@0.36.2) (2023-03-10)
+
+
+### :mega: Other
+
+* publish packages ([5589402](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/55894029a463f96a1f42827330b092be3fb63bf2))
+* update packages #856 #847 ([a78c8e3](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/a78c8e3c7ff8c3eb347a7617ddc76c807b57633e))
+
+
+
+## [0.36.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.35.1...svelte-moveable@0.36.0) (2023-03-08)
+
+
+### :mega: Other
+
+* publish packages ([645e290](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/645e290a53b477b468042e05447e2f8f8aea6ed0))
+
+
+
+## [0.35.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.34.1...svelte-moveable@0.35.1) (2023-01-29)
+
+
+### :mega: Other
+
+* publish packages ([24c9567](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/24c9567e2ec00392d2d445298031c39de0331eae))
+* publish packages ([0e0a03d](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/0e0a03dd6c234ded050db8206e585c5fa2da1848))
+
+
+
+## [0.34.1](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.34.0...svelte-moveable@0.34.1) (2022-12-16)
+
+
+### :mega: Other
+
+* publish packages ([d088ad9](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/commit/d088ad9ed64889f4fd6143b89410f5d5e372105f))
+
+
+
 ## [0.34.0](https://github.com/daybrush/moveable/blob/master/packages/svelte-moveable/compare/svelte-moveable@0.33.1...svelte-moveable@0.34.0) (2022-12-10)
 
 

@@ -3,13 +3,12 @@ import * as React from "react";
 import { useKeycon } from "react-keycon";
 import Selecto from "react-selecto";
 import Moveable, { MoveableTargetGroupsType } from "@/react-moveable";
-import "./cube.css";
-import { GroupManager } from "@moveable/helper";
+import { GroupManager, TargetList } from "@moveable/helper";
 
 export default function App() {
     const { isKeydown: isCommand } = useKeycon({ keys: "meta" });
     const { isKeydown: isShift } = useKeycon({ keys: "shift" });
-    const groupManagerRef = React.useRef<GroupManager>() ;
+    const groupManagerRef = React.useRef<GroupManager>();
     const [targets, setTargets] = React.useState<MoveableTargetGroupsType>([]);
     const moveableRef = React.useRef<Moveable>(null);
     const selectoRef = React.useRef<Selecto>(null);
@@ -46,11 +45,14 @@ export default function App() {
                         return;
                     }
                     if (e.isDouble) {
-                        const nextTargets = groupManagerRef!.current!.selectNextChild(targets, e.moveableTarget);
-                        setSelectedTargets(nextTargets);
+                        const childs = groupManagerRef!.current!.selectSubChilds(targets, e.moveableTarget);
+
+                        setSelectedTargets(childs.targets());
                         return;
                     }
-                    selectoRef.current!.clickTarget(e.inputEvent, e.moveableTarget);
+                    if (e.isTrusted) {
+                        selectoRef.current!.clickTarget(e.inputEvent, e.moveableTarget);
+                    }
                 }}
                 onDrag={e => {
                     e.target.style.transform = e.transform;
@@ -84,7 +86,7 @@ export default function App() {
                 }}
                 onSelectEnd={e => {
                     const {
-                        isDragStart,
+                        isDragStartEnd,
                         isClick,
                         added,
                         removed,
@@ -92,7 +94,7 @@ export default function App() {
                     } = e;
                     const moveable = moveableRef.current!;
 
-                    if (isDragStart) {
+                    if (isDragStartEnd) {
                         inputEvent.preventDefault();
 
                         moveable.waitToChangeTarget().then(() => {
@@ -100,18 +102,19 @@ export default function App() {
                         });
                     }
                     const groupManager = groupManagerRef.current!;
-                    let nextTargets = targets;
+                    let nextChilds: TargetList;
 
-                    if (isDragStart || isClick) {
+                    if (isDragStartEnd || isClick) {
                         if (isCommand) {
-                            nextTargets = groupManager.selectSingleTargets(targets, added, removed);
+                            nextChilds = groupManager.selectSingleChilds(targets, added, removed);
                         } else {
-                            nextTargets = groupManager.selectCompletedTargets(targets, added, removed, isShift);
+                            nextChilds = groupManager.selectCompletedChilds(targets, added, removed, isShift);
                         }
                     } else {
-                        nextTargets = groupManager.selectSameDepthTargets(targets, added, removed);
+                        nextChilds = groupManager.selectSameDepthChilds(targets, added, removed);
                     }
-                    setSelectedTargets(nextTargets);
+                    e.currentTarget.setSelectedTargets(nextChilds.flatten());
+                    setSelectedTargets(nextChilds.targets());
                 }}
             ></Selecto>
             <p>[[0, 1], 2] is group</p>

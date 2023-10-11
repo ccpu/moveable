@@ -3,6 +3,7 @@ import {
     calculatePosition, fillEndParams, getRotationRad, getRefTargets,
     catchEvent, getProps, calculateMoveableClientPositions,
     fillAfterTransform,
+    getTotalOrigin,
 } from "../utils";
 import {
     IObject, hasClass, getRad,
@@ -30,18 +31,18 @@ import { checkSnapRotate } from "./Snappable";
 import {
     fillTransformStartEvent,
     convertTransformFormat, getRotateDist,
-    getDirectionOffset,
     fillTransformEvent,
     setDefaultTransformIndex,
     resolveTransformEvent,
     getTransformDirection,
     getPosByDirection,
-    getDirectionByPos,
+    getTranslateFixedPosition,
 } from "../gesto/GestoUtils";
 import { DirectionControlInfo, renderAroundControls, renderDirectionControlsByInfos } from "../renderDirections";
-import { DIRECTIONS, DIRECTION_REGION_TO_DIRECTION } from "../consts";
+import { DIRECTION_REGION_TO_DIRECTION } from "../consts";
 import Resizable from "./Resizable";
 import Draggable from "./Draggable";
+import { getOffsetFixedDirectionInfo, getOffsetFixedPositionInfo } from "../utils/getFixedDirection";
 
 /**
  * @namespace Rotatable
@@ -132,10 +133,15 @@ function getRotateInfo(
     let isSnap = false;
 
     if (checkSnap) {
-        const result = checkSnapRotate(moveable, moveableRect, dist);
+        const result = checkSnapRotate(
+            moveable,
+            moveableRect,
+            dist,
+            startValue + dist,
+        );
 
         isSnap = result.isSnap;
-        snapRotation = startValue + result.rotation;
+        snapRotation = startValue + result.dist;
     }
 
     if (!isSnap) {
@@ -212,7 +218,7 @@ export function dragControlCondition(moveable: MoveableManagerInterface<Rotatabl
     const target = e.inputEvent.target as HTMLElement;
     if (
         hasClass(target, prefix("rotation-control"))
-        || hasClass(target, prefix("around-control"))
+        || (moveable.props.rotateAroundControls && hasClass(target, prefix("around-control")))
         || (hasClass(target, prefix("control")) && hasClass(target, prefix("rotatable")))
     ) {
         return true;
@@ -230,100 +236,60 @@ export function dragControlCondition(moveable: MoveableManagerInterface<Rotatabl
     return false;
 }
 
-const directionCSS = DIRECTIONS.map(dir => {
-    let top = "";
-    let left = "";
-    let originX = "center";
-    let originY = "center";
-
-    if (dir.indexOf("n") > -1) {
-        top = "top: -20px;";
-        originY = "bottom";
-    }
-    if (dir.indexOf("s") > -1) {
-        top = "top: 0px;";
-        originY = "top";
-    }
-    if (dir.indexOf("w") > -1) {
-        left = "left: -20px;";
-        originX = "right";
-    }
-    if (dir.indexOf("e") > -1) {
-        left = "left: 0px;";
-        originX = "left";
-    }
-    return `.around-control[data-direction*="${dir}"] {
-        ${left}${top}
-        transform-origin: ${originX} ${originY};
-    }`;
-}).join("\n");
 const css = `.rotation {
-    position: absolute;
-    height: 40px;
-    width: 1px;
-    transform-origin: 50% 100%;
-    height: calc(40px * var(--zoom));
-    top: auto;
-    left: 0;
-    bottom: 100%;
-    will-change: transform;
+position: absolute;
+height: 40px;
+width: 1px;
+transform-origin: 50% 100%;
+height: calc(40px * var(--zoom));
+top: auto;
+left: 0;
+bottom: 100%;
+will-change: transform;
 }
 .rotation .rotation-line {
-    display: block;
-    width: 100%;
-    height: 100%;
-    transform-origin: 50% 50%;
+display: block;
+width: 100%;
+height: 100%;
+transform-origin: 50% 50%;
 }
 .rotation .rotation-control {
-    border-color: #4af;
-    border-color: var(--moveable-color);
-    background:#fff;
-    cursor: alias;
+border-color: #4af;
+border-color: var(--moveable-color);
+background:#fff;
+cursor: alias;
 }
 :global .view-rotation-dragging, .rotatable.direction.control {
-    cursor: alias;
-}
-.around-control {
-    position: absolute;
-    will-change: transform;
-    width: 20px;
-    height: 20px;
-    left: -10px;
-    top: -10px;
-    box-sizing: border-box;
-    background: transparent;
-    z-index: 8;
-    cursor: alias;
-    transform-origin: center center;
+cursor: alias;
 }
 .rotatable.direction.control.move {
-    cursor: move;
+cursor: move;
 }
-${directionCSS}
 `;
 export default {
     name: "rotatable",
     canPinch: true,
-    props: {
-        rotatable: Boolean,
-        rotationPosition: String,
-        throttleRotate: Number,
-        renderDirections: Object,
-        rotationTarget: Object,
-        rotateAroundControls: Boolean,
-        edge: Boolean,
-        resolveAblesWithRotatable: Object,
-    } as const,
-    events: {
-        onRotateStart: "rotateStart",
-        onBeforeRotate: "beforeRotate",
-        onRotate: "rotate",
-        onRotateEnd: "rotateEnd",
-        onRotateGroupStart: "rotateGroupStart",
-        onBeforeRotateGroup: "beforeRotateGroup",
-        onRotateGroup: "rotateGroup",
-        onRotateGroupEnd: "rotateGroupEnd",
-    } as const,
+    props: [
+        "rotatable",
+        "rotationPosition",
+        "throttleRotate",
+        "renderDirections",
+        "rotationTarget",
+        "rotateAroundControls",
+        "edge",
+        "resolveAblesWithRotatable",
+        "displayAroundControls",
+    ] as const,
+    events: [
+        "rotateStart",
+        "beforeRotate",
+        "rotate",
+        "rotateEnd",
+        "rotateGroupStart",
+        "beforeRotateGroup",
+        "rotateGroup",
+        "rotateGroupEnd",
+    ] as const,
     css: [css],
     viewClassName(moveable: MoveableManagerInterface<RotatableProps>) {
         if (!moveable.isDragging("rotatable")) {
@@ -434,23 +400,23 @@ export default {
         datas.left = left;
         datas.top = top;
         let setFixedPosition = (fixedPosition: number[]) => {
-            const {
-                allMatrix,
-                is3d,
-                width,
-                height,
-            } = moveable.state;
-            const fixedDirection = getDirectionByPos(fixedPosition, width, height);
-            datas.fixedDirection = fixedDirection;
-            datas.fixedPosition = calculatePosition(allMatrix, fixedPosition, is3d ? 4 : 3);
+            const result = getOffsetFixedPositionInfo(moveable.state, fixedPosition);
+
+            datas.fixedDirection = result.fixedDirection;
+            datas.fixedOffset = result.fixedOffset;
+            datas.fixedPosition = result.fixedPosition;
+
 
             if (resizeStart) {
                 resizeStart.setFixedPosition(fixedPosition);
             }
         };
         let setFixedDirection: OnRotateStart["setFixedDirection"] = (fixedDirection: number[]) => {
-            datas.fixedDirection = fixedDirection;
-            datas.fixedPosition = getDirectionOffset(moveable, fixedDirection);
+            const result = getOffsetFixedDirectionInfo(moveable.state, fixedDirection);
+
+            datas.fixedDirection = result.fixedDirection;
+            datas.fixedOffset = result.fixedOffset;
+            datas.fixedPosition = result.fixedPosition;
 
             if (resizeStart) {
                 resizeStart.setFixedDirection(fixedDirection);
@@ -555,7 +521,7 @@ export default {
         datas.startValue = 0;
         datas.datas = {};
 
-        setDefaultTransformIndex(e, "rotate");
+        setDefaultTransformIndex(moveable, e, "rotate");
 
         let dragStart: OnDragStart | false = false;
         let resizeStart: OnResizeStart | false = false;
@@ -563,7 +529,7 @@ export default {
         if (datas.isControl && datas.resolveAble) {
             const resolveAble = datas.resolveAble;
 
-            if  (resolveAble === "resizable") {
+            if (resolveAble === "resizable") {
                 resizeStart = Resizable.dragControlStart(moveable, {
                     ...(new CustomGesto("resizable").dragStart([0, 0], e)),
                     parentPosition: datas.controlPosition,
@@ -579,14 +545,14 @@ export default {
             );
         }
 
-        setFixedPosition(state.transformOrigin);
+        setFixedPosition(getTotalOrigin(moveable));
         const params = fillParams<OnRotateStart>(moveable, e, {
             set: (rotatation: number) => {
                 datas.startValue = rotatation * Math.PI / 180;
             },
             setFixedDirection,
             setFixedPosition,
-            ...fillTransformStartEvent(e),
+            ...fillTransformStartEvent(moveable, e),
             dragStart,
             resizeStart,
         });
@@ -602,7 +568,11 @@ export default {
         moveable: MoveableManagerInterface<RotatableProps & DraggableProps>,
         e: any,
     ) {
-        const { datas, clientDistX, clientDistY, parentRotate, parentFlag, isPinch, groupDelta } = e;
+        const {
+            datas, clientDistX, clientDistY,
+            parentRotate, parentFlag, isPinch, groupDelta,
+            resolveMatrix,
+        } = e;
         const {
             beforeDirection,
             beforeInfo,
@@ -619,7 +589,7 @@ export default {
             return;
         }
 
-        resolveTransformEvent(e, "rotate");
+        resolveTransformEvent(moveable, e, "rotate");
 
         const targetDirection = getTransformDirection(e);
         const direction = beforeDirection * targetDirection;
@@ -696,13 +666,22 @@ export default {
             absoluteRotation,
         ] = getRotateInfo(moveable, rect, absoluteInfo, absoluteDist, absoluteStartRotation, isSnap);
 
-        if (!absoluteDelta && !delta && !beforeDelta && !parentMoveable) {
+        if (!absoluteDelta && !delta && !beforeDelta && !parentMoveable && !resolveMatrix) {
             return;
         }
 
         const nextTransform = convertTransformFormat(
             datas, `rotate(${rotation}deg)`, `rotate(${dist}deg)`,
         );
+        if (resolveMatrix) {
+            datas.fixedPosition = getTranslateFixedPosition(
+                moveable,
+                datas.targetAllTransform,
+                datas.fixedDirection,
+                datas.fixedOffset,
+                datas,
+            );
+        }
 
         const inverseDist = getRotateDist(moveable, dist, datas);
         const inverseDelta = minus(
@@ -710,7 +689,6 @@ export default {
             datas.prevInverseDist || [0, 0],
         );
         datas.prevInverseDist = inverseDist;
-
         datas.requestValue = null;
 
         const dragEvent = fillTransformEvent(

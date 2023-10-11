@@ -15,6 +15,7 @@
             "dom"
         ],
         "allowJs": true,
+        "downlevelIteration": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "strictNullChecks": true,
@@ -29,6 +30,9 @@
             ],
             "@/react-moveable": [
                 "./src/"
+            ],
+            "@moveable/helper": [
+                "../helper/src/"
             ]
         }
     },
@@ -40,5 +44,9 @@
         "./global.d.ts",
         "./stories/**/*.ts",
         "./stories/**/*.tsx"
+    ],
+    "exclude": [
+        "./stories/**/angular/**/*.ts",
+        "./stories/**/lit/**/*.ts"
     ]
 }

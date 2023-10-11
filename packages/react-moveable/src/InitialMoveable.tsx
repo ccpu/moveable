@@ -12,12 +12,11 @@ import { MOVEABLE_METHODS, PREFIX, MOVEABLE_CSS } from "./consts";
 import Default from "./ables/Default";
 import Groupable from "./ables/Groupable";
 import DragArea from "./ables/DragArea";
-import styled from "react-css-styled";
+import { styled } from "react-css-styled";
 import { getRefTargets } from "./utils";
 import IndividualGroupable from "./ables/IndividualGroupable";
 import MoveableIndividualGroup from "./MoveableIndividualGroup";
 import ChildrenDiffer from "@egjs/children-differ";
-
 
 function getElementTargets(
     refTargets: MoveableRefTargetsResultType,
@@ -44,6 +43,7 @@ function getElementTargets(
 
     return elementTargets;
 }
+
 function getTargetGroups(
     refTargets: MoveableRefTargetsResultType,
     selectorMap: IObject<Array<HTMLElement | SVGElement>>,
@@ -69,6 +69,7 @@ function getTargetGroups(
 
     return targetGroups;
 }
+
 function compareRefTargets(
     prevRefTargets: MoveableRefTargetsResultType,
     nextRefTargets: MoveableRefTargetsResultType,
@@ -92,7 +93,7 @@ type DefaultAbles = GroupableProps & IndividualGroupableProps & BeforeRenderable
 
 export class InitialMoveable<T = {}>
     extends React.PureComponent<MoveableDefaultProps & DefaultAbles & T> {
-    public static defaultAbles: Able[] = [];
+    public static defaultAbles: readonly Able<any>[] = [];
     public static customStyledMap: Record<string, any> = {};
     public static defaultStyled: any = null;
     public static makeStyled() {
@@ -112,7 +113,6 @@ export class InitialMoveable<T = {}>
         this.defaultStyled = styled("div", prefixCSS(PREFIX, MOVEABLE_CSS + style));
     }
     public static getTotalAbles(): Able[] {
-
         return [Default, Groupable, IndividualGroupable, DragArea, ...this.defaultAbles];
     }
     @withMethods(MOVEABLE_METHODS)
@@ -121,6 +121,8 @@ export class InitialMoveable<T = {}>
     public selectorMap: IObject<Array<HTMLElement | SVGElement>> = {};
     private _differ: ChildrenDiffer<HTMLElement | SVGElement> = new ChildrenDiffer();
     private _elementTargets: Array<HTMLElement | SVGElement> = [];
+    private _tmpRefTargets: MoveableRefTargetsResultType = [];
+    private _tmpSelectorMap: IObject<Array<HTMLElement | SVGElement>> = {};
     private _onChangeTargets: (() => void) | null = null;
     public render() {
         const moveableContructor = (this.constructor as typeof InitialMoveable);
@@ -133,8 +135,11 @@ export class InitialMoveable<T = {}>
             props: userProps,
             ...props
         } = this.props;
-        const refTargets = this._updateRefs(true);
-        const elementTargets = getElementTargets(refTargets, this.selectorMap);
+        const [
+            refTargets,
+            nextSelectorMap,
+        ] = this._updateRefs(true);
+        const elementTargets = getElementTargets(refTargets, nextSelectorMap);
 
         let isGroup = elementTargets.length > 1;
         const totalAbles = moveableContructor.getTotalAbles();
@@ -161,15 +166,16 @@ export class InitialMoveable<T = {}>
         if (persistData?.children) {
             isGroup = true;
         }
+        // Even one child is treated as a group if individualGroupable is enabled. #867
+        if (props.individualGroupable) {
+            return <MoveableIndividualGroup key="individual-group" ref={ref(this, "moveable")}
+                {...nextProps}
+                target={null}
+                targets={elementTargets}
+            />;
+        }
         if (isGroup) {
-            if (props.individualGroupable) {
-                return <MoveableIndividualGroup key="individual-group" ref={ref(this, "moveable")}
-                    {...nextProps}
-                    target={null}
-                    targets={elementTargets}
-                />;
-            }
-            const targetGroups = getTargetGroups(refTargets, this.selectorMap);
+            const targetGroups = getTargetGroups(refTargets, nextSelectorMap);
 
             // manager
             if (prevMoveable && !prevMoveable.props.groupable && !(prevMoveable.props as any).individualGroupable) {
@@ -208,7 +214,6 @@ export class InitialMoveable<T = {}>
     }
     public componentDidMount() {
         this._checkChangeTargets();
-        this._updateRefs();
     }
     public componentDidUpdate() {
         this._checkChangeTargets();
@@ -220,6 +225,7 @@ export class InitialMoveable<T = {}>
     /**
      * Get targets set in moveable through target or targets of props.
      * @method Moveable#getTargets
+     * @example
      * import Moveable from "moveable";
      *
      * const moveable = new Moveable(document.body, {
@@ -250,11 +256,8 @@ export class InitialMoveable<T = {}>
     /**
      * User changes target and waits for target to change.
      * @method Moveable#waitToChangeTarget
+     * @story combination-with-other-components--components-selecto
      * @example
-     * import Moveable from "moveable";
-     *
-     * const moveable = new Moveable(document.body);
-     *
      * document.querySelector(".target").addEventListener("mousedown", e => {
      *   moveable.waitToChangeTarget().then(() => {
      *      moveable.dragStart(e.currentTarget);
@@ -293,6 +296,12 @@ export class InitialMoveable<T = {}>
     public getManager(): MoveableManagerInterface<any, any> {
         return this.moveable;
     }
+    public getMoveables(): MoveableManagerInterface[] {
+        return this.moveable.getMoveables();
+    }
+    public getDragElement(): HTMLElement | SVGElement | null | undefined {
+        return this.moveable.getDragElement();
+    }
     private _updateRefs(isRender?: boolean) {
         const prevRefTargets = this.refTargets;
         const nextRefTargets = getRefTargets((this.props.target || this.props.targets) as any);
@@ -317,15 +326,19 @@ export class InitialMoveable<T = {}>
             }
         });
 
-        this.refTargets = nextRefTargets;
-        this.selectorMap = nextSelectorMap;
+        this._tmpRefTargets = nextRefTargets;
+        this._tmpSelectorMap = nextSelectorMap;
 
-        if (!isRender && isUpdate) {
-            this.forceUpdate();
-        }
-        return nextRefTargets;
+        return [
+            nextRefTargets,
+            nextSelectorMap,
+            !isRender && isUpdate,
+        ] as const;
     }
     private _checkChangeTargets() {
+        this.refTargets = this._tmpRefTargets;
+        this.selectorMap = this._tmpSelectorMap;
+
         const { added, removed } = this._differ.update(this._elementTargets);
         const isTargetChanged = added.length || removed.length;
 
@@ -336,8 +349,18 @@ export class InitialMoveable<T = {}>
             });
             this._onChangeTargets?.();
         }
-        this._updateRefs();
+        const [
+            refTargets,
+            selectorMap,
+            isUpdate,
+        ] = this._updateRefs();
 
+        this.refTargets = refTargets;
+        this.selectorMap = selectorMap;
+
+        if (isUpdate) {
+            this.forceUpdate();
+        }
     }
 }
 export interface InitialMoveable<T = {}>

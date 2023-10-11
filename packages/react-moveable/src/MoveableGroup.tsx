@@ -1,18 +1,22 @@
 import MoveableManager from "./MoveableManager";
-import { GroupableProps, GroupRect, MoveableTargetGroupsType, RectInfo } from "./types";
+import { GroupableProps, GroupRect, MoveableManagerInterface, MoveableTargetGroupsType, RectInfo } from "./types";
 import ChildrenDiffer from "@egjs/children-differ";
 import { getAbleGesto, getTargetAbleGesto } from "./gesto/getAbleGesto";
 import Groupable from "./ables/Groupable";
 import { MIN_NUM, MAX_NUM, TINY_NUM } from "./consts";
 import {
-    getAbsolutePosesByState, equals, unset, rotatePosesInfo,
+    getAbsolutePosesByState, equals, unsetGesto, rotatePosesInfo,
     convertTransformOriginArray,
+    isDeepArrayEquals,
+    sign,
+    getRefTarget,
 } from "./utils";
 import { minus, plus } from "@scena/matrix";
 import { getIntersectionPointsByConstants, getMinMaxs } from "overlap-area";
 import { find, isArray, throttle } from "@daybrush/utils";
 import { getMoveableTargetInfo } from "./utils/getMoveableTargetInfo";
 import { solveC, solveConstantsDistance } from "./Snappable/utils";
+import { setStoreCache } from "./store/Store";
 
 function getMaxPos(poses: number[][][], index: number) {
     return Math.max(...poses.map(([pos1, pos2, pos3, pos4]) => {
@@ -220,6 +224,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
     public moveables: MoveableManager[] = [];
     public transformOrigin = "50% 50%";
     public renderGroupRects: GroupRect[] = [];
+    private _targetGroups: MoveableTargetGroupsType = [];
     private _hasFirstTargets = false;
 
     public componentDidMount() {
@@ -238,6 +243,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         if (!this.controlBox || state.isPersisted) {
             return;
         }
+        setStoreCache(true);
         this.moveables.forEach(moveable => {
             moveable.updateRect(type, false, false);
         });
@@ -246,10 +252,12 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         const moveables = this.moveables;
         const target = state.target! || props.target!;
         const checkeds = moveables.map(moveable => ({ finded: false, manager: moveable }));
+        const targetGroups = this.props.targetGroups || [];
         const moveableGroups = findMoveableGroups(
             checkeds,
-            this.props.targetGroups || [],
+            targetGroups,
         );
+        const useDefaultGroupRotate = props.useDefaultGroupRotate;
 
         moveableGroups.push(...checkeds.filter(({ finded }) => !finded).map(({ manager }) => manager));
 
@@ -258,7 +266,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         let defaultGroupRotate = props.defaultGroupRotate || 0;
 
         if (!this._hasFirstTargets) {
-            const persistedRoatation = this.props.persistData?.rotation;
+            const persistedRoatation = props.persistData?.rotation;
 
             if (persistedRoatation != null) {
                 defaultGroupRotate = persistedRoatation;
@@ -289,9 +297,9 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             });
 
             if (isReset) {
-                groupRotation = isSameRotation ? firstRotation : defaultGroupRotate;
+                groupRotation = !useDefaultGroupRotate && isSameRotation ? firstRotation : defaultGroupRotate;
             } else {
-                groupRotation = !isRoot && isSameRotation ? firstRotation : parentRotation;
+                groupRotation = !useDefaultGroupRotate && !isRoot && isSameRotation ? firstRotation : parentRotation;
             }
             const groupPoses = posesRotations.map(({ poses }) => poses);
             const groupRect = getGroupRect(
@@ -310,6 +318,8 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             this.scale = [1, 1];
         }
 
+
+        this._targetGroups = targetGroups;
         this.renderGroupRects = renderGroupRects;
         const transformOrigin = this.transformOrigin;
         const rotation = this.rotation;
@@ -328,10 +338,10 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
 
         const { minX: deltaX, minY: deltaY } = getMinMaxs(posesInfo.result);
         const rotateScale = ` rotate(${rotation}deg)`
-            + ` scale(${scale[0] >= 0 ? 1 : -1}, ${scale[1] >= 0 ? 1 : -1})`;
+            + ` scale(${sign(scale[0])}, ${sign(scale[1])})`;
         const transform = `translate(${-deltaX}px, ${-deltaY}px)${rotateScale}`;
 
-        this.controlBox.getElement().style.transform
+        this.controlBox.style.transform
             = `translate3d(${minX}px, ${minY}px, ${this.props.translateZ || 0})`;
 
         target.style.cssText += `left:0px;top:0px;`
@@ -343,9 +353,9 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
 
         const container = this.getContainer();
         const info = getMoveableTargetInfo(
-            this.controlBox.getElement(),
+            this.controlBox,
             target,
-            this.controlBox.getElement(),
+            this.controlBox,
             this.getContainer(),
             this._rootContainer || container,
             [],
@@ -360,7 +370,7 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
 
         const minPos = getMinMaxs([pos1, pos2, pos3, pos4]);
         const delta = [minPos.minX, minPos.minY];
-        const direction = scale[0] * scale[1] > 0 ? 1 : -1;
+        const direction = sign(scale[0] * scale[1]);
 
         info.pos1 = minus(pos1, delta);
         info.pos2 = minus(pos2, delta);
@@ -377,6 +387,8 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         target.style.transform
             = `translate(${-deltaX - delta[0]}px, ${-deltaY - delta[1]}px)`
             + rotateScale;
+
+        setStoreCache();
         this.updateState(
             {
                 ...info,
@@ -400,35 +412,57 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
             this._emitter.trigger(name, e);
         }
     }
+    public getRequestChildStyles() {
+        const styleNames = this.getEnabledAbles().reduce((names, able) => {
+            const ableStyleNames = (able.requestChildStyle?.() ?? []) as Array<keyof CSSStyleDeclaration>;
+
+            return [...names, ...ableStyleNames];
+        }, [] as Array<keyof CSSStyleDeclaration>);
+
+
+        return styleNames;
+    }
+
+    public getMoveables(): MoveableManagerInterface[] {
+        return [...this.moveables];
+    }
     protected updateAbles() {
         super.updateAbles([...this.props.ables!, Groupable], "Group");
     }
     protected _updateTargets() {
         super._updateTargets();
-        this._prevTarget = this.props.dragTarget || this.areaElement;
+        this._originalDragTarget = this.props.dragTarget || this.areaElement;
+        this._dragTarget = getRefTarget(this._originalDragTarget, true);
     }
     protected _updateEvents() {
         const state = this.state;
         const props = this.props;
 
-        const prevTarget = this._prevTarget;
-        const nextTarget = props.dragTarget || this.areaElement;
 
+        const prevTarget = this._prevDragTarget;
+        const nextTarget = props.dragTarget || this.areaElement;
+        const targets = props.targets!;
+        const { added, changed, removed } = this.differ.update(targets);
+        const isTargetChanged = added.length || removed.length;
+
+        if (isTargetChanged || this._prevOriginalDragTarget !== this._originalDragTarget) {
+            unsetGesto(this, false);
+            unsetGesto(this, true);
+            this.updateState({ gestos: {} });
+        }
         if (prevTarget !== nextTarget) {
-            unset(this, "targetGesto");
-            unset(this, "controlGesto");
             state.target = null;
         }
         if (!state.target) {
             state.target = this.areaElement;
-            this.controlBox.getElement().style.display = "block";
+            this.controlBox.style.display = "block";
         }
         if (state.target) {
             if (!this.targetGesto) {
-                this.targetGesto = getTargetAbleGesto(this, nextTarget, "Group");
+                this.targetGesto = getTargetAbleGesto(this, this._dragTarget!, "Group");
             }
             if (!this.controlGesto) {
-                this.controlGesto = getAbleGesto(this, this.controlBox.getElement(), "controlAbles", "GroupControl");
+                this.controlGesto = getAbleGesto(this, this.controlBox, "controlAbles", "GroupControl");
             }
         }
         const isContainerChanged = !equals(state.container, props.container);
@@ -436,10 +470,15 @@ class MoveableGroup extends MoveableManager<GroupableProps> {
         if (isContainerChanged) {
             state.container = props.container;
         }
-        const { added, changed, removed } = this.differ.update(props.targets!);
-        const isTargetChanged = added.length || removed.length;
 
-        if (isContainerChanged || isTargetChanged || changed.length) {
+
+        if (
+            isContainerChanged
+            || isTargetChanged
+            || this.transformOrigin !== (props.defaultGroupOrigin || "50% 50%")
+            || changed.length
+            || targets.length && !isDeepArrayEquals(this._targetGroups, props.targetGroups || [])
+        ) {
             this.updateRect();
             this._hasFirstTargets = true;
         }

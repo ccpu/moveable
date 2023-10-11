@@ -1,6 +1,9 @@
 import { createIdentityMatrix, convertDimension, multiply, createOriginMatrix, ignoreDimension } from "@scena/matrix";
+import { getCachedMatrixContainerInfo } from "../store/Store";
 import { convert3DMatrixes, getOffsetInfo, getSVGOffset, makeMatrixCSS } from "../utils";
 import { getMatrixStackInfo } from "./getMatrixStackInfo";
+import { getDocumentBody } from "@daybrush/utils";
+import { MatrixInfo } from "../types";
 
 export interface MoveableElementMatrixInfo {
     hasZoom: boolean;
@@ -15,8 +18,10 @@ export interface MoveableElementMatrixInfo {
     targetOrigin: number[];
     is3d: boolean;
     targetTransform: string;
-    offsetContainer: HTMLElement | null,
-    offsetRootContainer: HTMLElement | null,
+    inlineTransform: string;
+    offsetContainer: HTMLElement | null;
+    offsetRootContainer: HTMLElement | null;
+    matrixes: MatrixInfo[];
 }
 
 export function calculateMatrixStack(
@@ -38,12 +43,13 @@ export function calculateMatrixStack(
         hasFixed,
         zoom: containerZoom,
     } = getMatrixStackInfo(target, container); // prevMatrix
+
     const {
         matrixes: rootMatrixes,
         is3d: isRoot3d,
         offsetContainer: offsetRootContainer,
         zoom: rootZoom,
-    } = getMatrixStackInfo(offsetContainer, rootContainer, true); // prevRootMatrix
+    } = getCachedMatrixContainerInfo(offsetContainer, rootContainer); // prevRootMatrix
 
     // if (rootContainer === document.body) {
     //     console.log(offsetContainer, rootContainer, rootMatrixes);
@@ -60,8 +66,12 @@ export function calculateMatrixStack(
     let beforeMatrix = createIdentityMatrix(n);
     let offsetMatrix = createIdentityMatrix(n);
     const length = matrixes.length;
-
-    rootMatrixes.reverse();
+    const nextRootMatrixes = rootMatrixes.map(info => {
+        return {
+            ...info,
+            matrix: info.matrix ? [...info.matrix] : undefined,
+        };
+    }).reverse();
     matrixes.reverse();
 
     if (!is3d && isNext3d) {
@@ -70,7 +80,7 @@ export function calculateMatrixStack(
         convert3DMatrixes(matrixes);
     }
     if (!isRoot3d && isNext3d) {
-        convert3DMatrixes(rootMatrixes);
+        convert3DMatrixes(nextRootMatrixes);
     }
 
 
@@ -79,13 +89,13 @@ export function calculateMatrixStack(
     // beforeMatrix = (... -> container -> offset -> absolute) -> offset -> absolute(targetMatrix)
     // offsetMatrix = (... -> container -> offset -> absolute -> offset) -> absolute(targetMatrix)
 
-    rootMatrixes.forEach(info => {
+    nextRootMatrixes.forEach(info => {
         rootMatrix = multiply(rootMatrix, info.matrix!, n);
     });
-    const originalRootContainer = rootContainer || document.body;
-    const endContainer = rootMatrixes[0]?.target
+    const originalRootContainer = rootContainer || getDocumentBody(target);
+    const endContainer = nextRootMatrixes[0]?.target
         || getOffsetInfo(originalRootContainer, originalRootContainer, true).offsetParent;
-    const rootMatrixBeforeOffset = rootMatrixes.slice(1).reduce((matrix, info) => {
+    const rootMatrixBeforeOffset = nextRootMatrixes.slice(1).reduce((matrix, info) => {
         return multiply(matrix, info.matrix!, n);
     }, createIdentityMatrix(n));
     matrixes.forEach((info, i) => {
@@ -129,6 +139,7 @@ export function calculateMatrixStack(
     return {
         hasZoom: containerZoom !== 1 || rootZoom !== 1,
         hasFixed,
+        matrixes,
         rootMatrix,
         originalRootMatrix,
         beforeMatrix,
@@ -136,6 +147,7 @@ export function calculateMatrixStack(
         allMatrix,
         targetMatrix,
         targetTransform,
+        inlineTransform: target.style.transform,
         transformOrigin,
         targetOrigin,
         is3d: isNext3d,

@@ -20,28 +20,26 @@ function isIdentityMatrix(matrix: string, is3d?: boolean) {
 export default {
     isPinch: true,
     name: "beforeRenderable",
-    props: {
-    } as const,
-    events: {
-        onBeforeRenderStart: "beforeRenderStart",
-        onBeforeRender: "beforeRender",
-        onBeforeRenderEnd: "beforeRenderEnd",
-        onBeforeRenderGroupStart: "beforeRenderGroupStart",
-        onBeforeRenderGroup: "beforeRenderGroup",
-        onBeforeRenderGroupEnd: "beforeRenderGroupEnd",
-    } as const,
+    props: [] as const,
+    events: [
+        "beforeRenderStart",
+        "beforeRender",
+        "beforeRenderEnd",
+        "beforeRenderGroupStart",
+        "beforeRenderGroup",
+        "beforeRenderGroupEnd",
+    ] as const,
     dragRelation: "weak",
     setTransform(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
         const {
             is3d,
-            target,
             targetMatrix,
+            inlineTransform,
         } = moveable.state;
-        const transform = target?.style.transform;
         const cssMatrix = is3d
             ? `matrix3d(${targetMatrix.join(",")})`
             : `matrix(${convertMatrixtoCSS(targetMatrix, true)})`;
-        const startTransform = !transform || transform === "none" ? cssMatrix : transform;
+        const startTransform = !inlineTransform || inlineTransform === "none" ? cssMatrix : inlineTransform;
 
         e.datas.startTransforms = isIdentityMatrix(startTransform, is3d) ? [] : splitSpace(startTransform);
     },
@@ -72,12 +70,19 @@ export default {
         triggerEvent(moveable, `onBeforeRenderStart`, this.fillDragStartParams(moveable, e));
     },
     drag(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
+        if (!e.datas.startTransforms) {
+            this.setTransform(moveable, e);
+        }
         this.resetStyle(e);
         triggerEvent(moveable, `onBeforeRender`, fillParams<OnBeforeRender>(moveable, e, {
             isPinch: !!e.isPinch,
         }));
     },
     dragEnd(moveable: MoveableManagerInterface<BeforeRenderableProps>, e: any) {
+        if (!e.datas.startTransforms) {
+            this.setTransform(moveable, e);
+            this.resetStyle(e);
+        }
         triggerEvent(moveable, `onBeforeRenderEnd`, fillParams<OnBeforeRenderEnd>(moveable, e, {
             isPinch: !!e.isPinch,
             isDrag: e.isDrag,

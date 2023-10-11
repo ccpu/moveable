@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { PREFIX } from "./consts";
 import {
     prefix,
-    unset,
+    unsetGesto,
     getAbsolutePosesByState,
     getRect,
     filterAbles,
@@ -15,35 +15,39 @@ import {
     defaultSync,
     getRefTarget,
     groupBy,
+    unsetAbles,
+    getPaddingBox,
 } from "./utils";
 import Gesto from "gesto";
 import { ref } from "framework-utils";
 import {
     MoveableManagerProps, MoveableManagerState, Able,
-    RectInfo, Requester, PaddingBox, HitRect, MoveableManagerInterface,
+    RectInfo, Requester, HitRect, MoveableManagerInterface,
     MoveableDefaultOptions,
     GroupableProps,
+    MoveableRefType,
 } from "./types";
 import { triggerAble, getTargetAbleGesto, getAbleGesto, checkMoveableTarget } from "./gesto/getAbleGesto";
-import { plus } from "@scena/matrix";
+import { createOriginMatrix, multiplies, plus } from "@scena/matrix";
 import {
     addClass, cancelAnimationFrame, find,
-    getKeys, IObject, removeClass, requestAnimationFrame,
+    getKeys, getWindow, IObject, isNode, removeClass, requestAnimationFrame,
 } from "@daybrush/utils";
 import { renderLine } from "./renderDirections";
 import { fitPoints, getAreaSize, getOverlapSize, isInside } from "overlap-area";
 import EventManager from "./EventManager";
-import styled from "react-css-styled";
+import { styled } from "react-css-styled";
 import EventEmitter from "@scena/event-emitter";
 import { getMoveableTargetInfo } from "./utils/getMoveableTargetInfo";
 import { VIEW_DRAGGING } from "./classNames";
 import { diff } from "@egjs/list-differ";
 import { getPersistState } from "./utils/persist";
-// import { getClipPath } from "./ables/clippable/utils";
+import { setStoreCache } from "./store/Store";
 
 export default class MoveableManager<T = {}>
     extends React.PureComponent<MoveableManagerProps<T>, MoveableManagerState> {
     public static defaultProps: Required<MoveableManagerProps> = {
+        dragTargetSelf: false,
         target: null,
         dragTarget: null,
         container: null,
@@ -53,8 +57,14 @@ export default class MoveableManager<T = {}>
         wrapperMoveable: null,
         isWrapperMounted: false,
         parentPosition: null,
-        portalContainer: null,
+        warpSelf: false,
+        svgOrigin: "",
+        dragContainer: null,
         useResizeObserver: false,
+        useMutationObserver: false,
+        preventDefault: true,
+        linePadding: 0,
+        controlPadding: 0,
         ables: [],
         pinchThreshold: 20,
         dragArea: false,
@@ -66,6 +76,7 @@ export default class MoveableManager<T = {}>
         padding: {},
         pinchOutside: true,
         checkInput: false,
+        dragFocusedInput: false,
         groupable: false,
         hideDefaultLines: false,
         cspNonce: "",
@@ -80,11 +91,18 @@ export default class MoveableManager<T = {}>
         firstRenderState: null,
         persistData: null,
         viewContainer: null,
+        requestStyles: [],
         useAccuratePosition: false,
     };
     public state: MoveableManagerState = {
         container: null,
         gestos: {},
+        renderLines: [
+            [[0, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+        ],
         renderPoses: [[0, 0], [0, 0], [0, 0], [0, 0]],
         disableNativeEvent: false,
         posDelta: [0, 0],
@@ -94,7 +112,7 @@ export default class MoveableManager<T = {}>
     public enabledAbles: Able[] = [];
     public targetAbles: Able[] = [];
     public controlAbles: Able[] = [];
-    public controlBox!: { getElement(): HTMLElement };
+    public controlBox!: HTMLElement;
     public areaElement!: HTMLElement;
     public targetGesto!: Gesto;
     public controlGesto!: Gesto;
@@ -109,16 +127,27 @@ export default class MoveableManager<T = {}>
     };
 
     protected _emitter: EventEmitter = new EventEmitter();
-    protected _prevTarget: HTMLElement | SVGElement | null | undefined = null;
+
+    protected _prevOriginalDragTarget: MoveableRefType | null = null;
+    protected _originalDragTarget: MoveableRefType | null = null;
+
+    protected _prevDragTarget: HTMLElement | SVGElement | null | undefined = null;
+    protected _dragTarget: HTMLElement | SVGElement | null | undefined = null;
+
+    protected _prevPropTarget: HTMLElement | SVGElement | null | undefined = null;
+    protected _propTarget: HTMLElement | SVGElement | null | undefined = null;
+
     protected _prevDragArea = false;
     protected _isPropTargetChanged = false;
     protected _hasFirstTarget = false;
 
-    private _observer: ResizeObserver | null = null;
+    private _reiszeObserver: ResizeObserver | null = null;
     private _observerId = 0;
+    private _mutationObserver: MutationObserver | null = null;
     public _rootContainer: HTMLElement | null | undefined = null;
     private _viewContainer: HTMLElement | null | undefined = null;
     private _viewClassNames: string[] = [];
+    private _store: Record<string, any> = {};
 
     public render() {
         const props = this.props;
@@ -130,8 +159,9 @@ export default class MoveableManager<T = {}>
             zoom, cspNonce,
             translateZ,
             cssStyled: ControlBoxElement,
-            portalContainer,
             groupable,
+            linePadding,
+            controlPadding,
         } = props;
 
         this._checkUpdateRootContainer();
@@ -165,6 +195,20 @@ export default class MoveableManager<T = {}>
             translate[0] += offsetDelta[0];
             translate[1] += offsetDelta[1];
         }
+        const style: Record<string, any> = {
+            "position": hasFixed ? "fixed" : "absolute",
+            "display": isDisplay ? "block" : "none",
+            "visibility": isVisible ? "visible" : "hidden",
+            "transform": `translate3d(${translate[0]}px, ${translate[1]}px, ${translateZ})`,
+            "--zoom": zoom,
+            "--zoompx": `${zoom}px`,
+        };
+        if (linePadding) {
+            style["--moveable-line-padding"] = linePadding;
+        }
+        if (controlPadding) {
+            style["--moveable-control-padding"] = controlPadding;
+        }
         return (
             <ControlBoxElement
                 cspNonce={cspNonce}
@@ -172,15 +216,7 @@ export default class MoveableManager<T = {}>
                 className={`${prefix("control-box", direction === -1 ? "reverse" : "", isDragging ? "dragging" : "")} ${ableClassName} ${className}`}
                 {...ableAttributes}
                 onClick={this._onPreventClick}
-                portalContainer={portalContainer}
-                style={{
-                    "position": hasFixed ? "fixed" : "absolute",
-                    "display": isDisplay ? "block" : "none",
-                    "visibility": isVisible ? "visible" : "hidden",
-                    "transform": `translate3d(${translate[0]}px, ${translate[1]}px, ${translateZ})`,
-                    "--zoom": zoom,
-                    "--zoompx": `${zoom}px`,
-                }}>
+                style={style}>
                 {this.renderAbles()}
                 {this._renderLines()}
             </ControlBoxElement>
@@ -189,9 +225,8 @@ export default class MoveableManager<T = {}>
     public componentDidMount() {
         this.isMoveableMounted = true;
         this.isUnmounted = false;
-        this.controlBox.getElement();
         const props = this.props;
-        const { parentMoveable, container, wrapperMoveable } = props;
+        const { parentMoveable, container } = props;
 
 
         this._checkUpdateRootContainer();
@@ -202,7 +237,7 @@ export default class MoveableManager<T = {}>
         this.updateCheckInput();
         this._updateObserver(this.props);
 
-        if (!container && !parentMoveable && !wrapperMoveable && !this.state.isPersisted) {
+        if (!container && !parentMoveable && !this.state.isPersisted) {
             this.updateRect("", false, false);
             this.forceUpdate();
         }
@@ -211,8 +246,8 @@ export default class MoveableManager<T = {}>
         this._checkUpdateRootContainer();
         this._checkUpdateViewContainer();
         this._updateNativeEvents();
-        this._updateEvents();
         this._updateTargets();
+        this._updateEvents();
         this.updateCheckInput();
         this._updateObserver(prevProps);
     }
@@ -220,14 +255,16 @@ export default class MoveableManager<T = {}>
         this.isMoveableMounted = false;
         this.isUnmounted = true;
         this._emitter.off();
+        this._reiszeObserver?.disconnect();
+        this._mutationObserver?.disconnect();
 
         const viewContainer = this._viewContainer;
 
         if (viewContainer) {
             this._changeAbleViewClassNames([]);
         }
-        unset(this, "targetGesto");
-        unset(this, "controlGesto");
+        unsetGesto(this, false);
+        unsetGesto(this, true);
 
         const events = this.events;
         for (const name in events) {
@@ -255,7 +292,21 @@ export default class MoveableManager<T = {}>
         return container!
             || (wrapperMoveable && wrapperMoveable.getContainer())
             || (parentMoveable && parentMoveable.getContainer())
-            || this.controlBox.getElement().parentElement!;
+            || this.controlBox.parentElement!;
+    }
+    /**
+     * Returns the element of the control box.
+     * @method Moveable#getControlBoxElement
+     */
+    public getControlBoxElement(): HTMLElement {
+        return this.controlBox;
+    }
+    /**
+     * Target element to be dragged in moveable
+     * @method Moveable#getDragElement
+     */
+    public getDragElement(): HTMLElement | SVGElement | null | undefined {
+        return this._dragTarget;
     }
     /**
      * Check if the target is an element included in the moveable.
@@ -330,7 +381,7 @@ export default class MoveableManager<T = {}>
         }
         let rect: Required<HitRect>;
 
-        if (el instanceof Element) {
+        if (isNode(el)) {
             const clientRect = el.getBoundingClientRect();
 
             rect = {
@@ -403,15 +454,20 @@ export default class MoveableManager<T = {}>
      */
     public updateRect(type?: "Start" | "" | "End", isTarget?: boolean, isSetState: boolean = true) {
         const props = this.props;
+        const isSingle = !props.parentPosition && !props.wrapperMoveable;
+
+        if (isSingle) {
+            setStoreCache(true);
+        }
         const parentMoveable = props.parentMoveable;
         const state = this.state;
-        const target = (state.target || this.props.target) as HTMLElement | SVGElement;
+        const target = (state.target || props.target) as HTMLElement | SVGElement;
         const container = this.getContainer();
         const rootContainer = parentMoveable
             ? (parentMoveable as any)._rootContainer
             : this._rootContainer;
         const nextState = getMoveableTargetInfo(
-            this.controlBox && this.controlBox.getElement(),
+            this.controlBox,
             target,
             container,
             container,
@@ -425,6 +481,10 @@ export default class MoveableManager<T = {}>
             for (const name in persistState) {
                 (nextState as any)[name] = (persistState as any)[name];
             }
+        }
+
+        if (isSingle) {
+            setStoreCache();
         }
         this.updateState(
             nextState,
@@ -472,7 +532,9 @@ export default class MoveableManager<T = {}>
     }
     /**
      * If the width, height, left, and top of the only target change, update the shape of the moveable.
+     * Use `.updateRect()` method
      * @method Moveable#updateTarget
+     * @deprecated
      * @example
      * import Moveable from "moveable";
      *
@@ -558,10 +620,20 @@ export default class MoveableManager<T = {}>
      */
     public stopDrag(type?: "target" | "control"): void {
         if (!type || type === "target") {
-            this.targetGesto?.stop();
+            const gesto = this.targetGesto;
+
+            if (gesto?.isIdle() === false) {
+                unsetAbles(this, false);
+            }
+            gesto?.stop();
         }
         if (!type || type === "control") {
-            this.controlGesto?.stop();
+            const gesto = this.controlGesto;
+
+            if (gesto?.isIdle() === false) {
+                unsetAbles(this, true);
+            }
+            gesto?.stop();
         }
     }
     public getRotation() {
@@ -602,9 +674,17 @@ export default class MoveableManager<T = {}>
      * requester.request({ deltaX: 10, deltaY: 10 });
      * requester.requestEnd();
      */
-    public request(ableName: string, param: IObject<any> = {}, isInstant?: boolean): Requester {
-        const { ables, groupable } = this.props as any;
-        const requsetAble: Able = ables!.filter((able: Able) => able.name === ableName)[0];
+    public request(
+        ableName: string,
+        param: IObject<any> = {},
+        isInstant?: boolean,
+    ): Requester {
+        const self = this;
+        const props = self.props;
+        const manager = props.parentMoveable || props.wrapperMoveable || self;
+        const allAbles = manager.props.ables!;
+        const groupable = props.groupable;
+        const requsetAble = find(allAbles, (able: Able) => able.name === ableName);
 
         if (this.isDragging() || !requsetAble || !requsetAble.request) {
             return {
@@ -616,39 +696,49 @@ export default class MoveableManager<T = {}>
                 },
             };
         }
-        const self = this;
-        const ableRequester = requsetAble.request(this);
 
+        const ableRequester = requsetAble.request(self);
         const requestInstant = isInstant || param.isInstant;
         const ableType = ableRequester.isControl ? "controlAbles" : "targetAbles";
         const eventAffix = `${(groupable ? "Group" : "")}${ableRequester.isControl ? "Control" : ""}`;
+        const moveableAbles: Able[] = [...manager[ableType]];
 
         const requester = {
             request(ableParam: IObject<any>) {
-                triggerAble(self, ableType, "drag", eventAffix, "", {
+                triggerAble(self, moveableAbles, ["drag"], eventAffix, "", {
                     ...ableRequester.request(ableParam),
                     requestAble: ableName,
                     isRequest: true,
                 }, requestInstant);
-                return this;
+                return requester;
             },
             requestEnd() {
-                triggerAble(self, ableType, "drag", eventAffix, "End", {
+                triggerAble(self, moveableAbles, ["drag"], eventAffix, "End", {
                     ...ableRequester.requestEnd(),
                     requestAble: ableName,
                     isRequest: true,
                 }, requestInstant);
-                return this;
+                return requester;
             },
         };
 
-        triggerAble(self, ableType, "drag", eventAffix, "Start", {
+        triggerAble(self, moveableAbles, ["drag"], eventAffix, "Start", {
             ...ableRequester.requestStart(param),
             requestAble: ableName,
             isRequest: true,
         }, requestInstant);
 
         return requestInstant ? requester.request(param).requestEnd() : requester;
+    }
+    /**
+     * moveable is the top level that manages targets
+     * `Single`: MoveableManager instance
+     * `Group`: MoveableGroup instance
+     * `IndividualGroup`: MoveableIndividaulGroup instance
+     * Returns leaf target MoveableManagers.
+     */
+    public getMoveables(): MoveableManagerInterface[] {
+        return [this];
     }
     /**
      * Remove the Moveable object and the events.
@@ -666,6 +756,7 @@ export default class MoveableManager<T = {}>
     public updateRenderPoses() {
         const state = this.getState();
         const props = this.props;
+        const padding = props.padding;
         const {
             originalBeforeOrigin,
             transformOrigin,
@@ -673,16 +764,31 @@ export default class MoveableManager<T = {}>
             pos1, pos2, pos3, pos4,
             left: stateLeft,
             top: stateTop,
-            // offsetWidth,
-            // offsetHeight,
             isPersisted,
         } = state;
+        const zoom = props.zoom || 1;
+
+        if (!padding && zoom <= 1) {
+            state.renderPoses = [
+                pos1,
+                pos2,
+                pos3,
+                pos4,
+            ];
+            state.renderLines = [
+                [pos1, pos2],
+                [pos2, pos4],
+                [pos4, pos3],
+                [pos3, pos1],
+            ];
+            return;
+        }
         const {
-            left = 0,
-            top = 0,
-            bottom = 0,
-            right = 0,
-        } = (props.padding || {}) as PaddingBox;
+            left,
+            top,
+            bottom,
+            right,
+        } = getPaddingBox(padding || {});
         const n = is3d ? 4 : 3;
 
         // const clipPathInfo = getClipPath(
@@ -708,12 +814,53 @@ export default class MoveableManager<T = {}>
             absoluteOrigin = plus(originalBeforeOrigin, [stateLeft, stateTop]);
         }
 
+        const nextMatrix = multiplies(
+            n,
+            createOriginMatrix(absoluteOrigin.map(v => -v), n),
+            allMatrix,
+            createOriginMatrix(transformOrigin, n),
+        );
+
+        const renderPos1 = calculatePadding(nextMatrix, pos1, [-left, -top], n);
+        const renderPos2 = calculatePadding(nextMatrix, pos2, [right, -top], n);
+        const renderPos3 = calculatePadding(nextMatrix, pos3, [-left, bottom], n);
+        const renderPos4 = calculatePadding(nextMatrix, pos4, [right, bottom], n);
+
         state.renderPoses = [
-            plus(pos1, calculatePadding(allMatrix, [-left, -top], transformOrigin, absoluteOrigin, n)),
-            plus(pos2, calculatePadding(allMatrix, [right, -top], transformOrigin, absoluteOrigin, n)),
-            plus(pos3, calculatePadding(allMatrix, [-left, bottom], transformOrigin, absoluteOrigin, n)),
-            plus(pos4, calculatePadding(allMatrix, [right, bottom], transformOrigin, absoluteOrigin, n)),
+            renderPos1,
+            renderPos2,
+            renderPos3,
+            renderPos4,
         ];
+        state.renderLines = [
+            [renderPos1, renderPos2],
+            [renderPos2, renderPos4],
+            [renderPos4, renderPos3],
+            [renderPos3, renderPos1],
+        ];
+
+        if (zoom) {
+            const zoomOffset = zoom / 2;
+
+            state.renderLines = [
+                [
+                    calculatePadding(nextMatrix, pos1, [-left - zoomOffset, -top], n),
+                    calculatePadding(nextMatrix, pos2, [right + zoomOffset, -top], n),
+                ],
+                [
+                    calculatePadding(nextMatrix, pos2, [right, -top - zoomOffset], n),
+                    calculatePadding(nextMatrix, pos4, [right, bottom + zoomOffset], n),
+                ],
+                [
+                    calculatePadding(nextMatrix, pos4, [right + zoomOffset, bottom], n),
+                    calculatePadding(nextMatrix, pos3, [-left - zoomOffset, bottom], n),
+                ],
+                [
+                    calculatePadding(nextMatrix, pos3, [-left, bottom + zoomOffset], n),
+                    calculatePadding(nextMatrix, pos1, [-left, -top - zoomOffset], n),
+                ],
+            ];
+        }
     }
     public checkUpdate() {
         this._isPropTargetChanged = false;
@@ -749,9 +896,19 @@ export default class MoveableManager<T = {}>
     public waitToChangeTarget(): Promise<void> {
         return new Promise(() => { });
     }
-    public triggerEvent(name: string, e: any): any {
+    public triggerEvent(
+        name: string,
+        e: any,
+    ): any {
+        const props = this.props;
+
         this._emitter.trigger(name, e);
-        const callback = (this.props as any)[name];
+
+        if (props.parentMoveable && e.isRequest && !e.isRequestChild) {
+            return props.parentMoveable.triggerEvent(name, e, true);
+        }
+
+        const callback = (props as any)[name];
 
         return callback && callback(e);
     }
@@ -772,7 +929,7 @@ export default class MoveableManager<T = {}>
         const parentMoveable = this.props.parentMoveable;
 
         if (parentMoveable) {
-            (parentMoveable as MoveableManager).checkUpdateRect();
+            (parentMoveable as any).checkUpdateRect();
             return;
         }
         cancelAnimationFrame(this._observerId);
@@ -876,48 +1033,29 @@ export default class MoveableManager<T = {}>
             const ableStyleNames = (able.requestStyle?.() ?? []) as Array<keyof CSSStyleDeclaration>;
 
             return [...names, ...ableStyleNames];
-        }, [] as Array<keyof CSSStyleDeclaration>);
+        }, [...(this.props.requestStyles || [])] as Array<keyof CSSStyleDeclaration>);
 
 
         return styleNames;
     }
     protected _updateObserver(prevProps: MoveableDefaultOptions) {
-        const props = this.props;
-        const target = props.target;
-
-        if (!window.ResizeObserver || !target || !props.useResizeObserver) {
-            this._observer?.disconnect();
-            return;
-        }
-
-        if (prevProps.target === target && this._observer) {
-            return;
-        }
-
-        const observer = new ResizeObserver(this.checkUpdateRect);
-
-        observer.observe(target!, {
-            box: "border-box",
-        });
-        this._observer = observer;
-
-        return;
+        this._updateResizeObserver(prevProps);
+        this._updateMutationObserver(prevProps);
     }
     protected _updateEvents() {
-        const controlBoxElement = this.controlBox.getElement();
+        const controlBoxElement = this.controlBox;
         const hasTargetAble = this.targetAbles.length;
         const hasControlAble = this.controlAbles.length;
-        const props = this.props;
-        const target = props.dragTarget || props.target;
+        const target = this._dragTarget;
         const isUnset = (!hasTargetAble && this.targetGesto)
             || this._isTargetChanged(true);
 
         if (isUnset) {
-            unset(this, "targetGesto");
-            this.updateState({ gesto: null });
+            unsetGesto(this, false);
+            this.updateState({ gestos: {} });
         }
         if (!hasControlAble) {
-            unset(this, "controlGesto");
+            unsetGesto(this, true);
         }
 
         if (target && hasTargetAble && !this.targetGesto) {
@@ -930,8 +1068,15 @@ export default class MoveableManager<T = {}>
     protected _updateTargets() {
         const props = this.props;
 
-        this._prevTarget = props.dragTarget || props.target;
+        this._prevPropTarget = this._propTarget;
+        this._prevDragTarget = this._dragTarget;
+        this._prevOriginalDragTarget = this._originalDragTarget;
         this._prevDragArea = props.dragArea!;
+
+        this._propTarget = props.target;
+        this._originalDragTarget = props.dragTarget || props.target;
+        this._dragTarget = getRefTarget(this._originalDragTarget, true);
+
     }
     private _renderLines() {
         const props = this.props;
@@ -945,18 +1090,13 @@ export default class MoveableManager<T = {}>
         if (hideDefaultLines || (parentMoveable && hideChildMoveableDefaultLines)) {
             return [];
         }
-        const renderPoses = this.getState().renderPoses;
+        const state = this.getState();
         const Renderer = {
             createElement,
         };
 
-        return [
-            [0, 1],
-            [1, 3],
-            [3, 2],
-            [2, 0],
-        ].map(([from, to], i) => {
-            return renderLine(Renderer, "", renderPoses[from], renderPoses[to], zoom!, `render-line-${i}`);
+        return state.renderLines.map((line, i) => {
+            return renderLine(Renderer, "", line[0], line[1], zoom!, `render-line-${i}`);
         });
     }
     private _onPreventClick = (e: any) => {
@@ -966,16 +1106,16 @@ export default class MoveableManager<T = {}>
     }
     private _isTargetChanged(useDragArea?: boolean) {
         const props = this.props;
-        const target = props.dragTarget || props.target;
-        const prevTarget = this._prevTarget;
+        const nextTarget = props.dragTarget || props.target;
+        const prevTarget = this._prevOriginalDragTarget;
         const prevDragArea = this._prevDragArea;
         const dragArea = props.dragArea;
 
         // check target without dragArea
-        const isTargetChanged = !dragArea && prevTarget !== target;
+        const isDragTargetChanged = !dragArea && prevTarget !== nextTarget;
         const isDragAreaChanged = (useDragArea || dragArea) && prevDragArea !== dragArea;
 
-        return isTargetChanged || isDragAreaChanged;
+        return isDragTargetChanged || isDragAreaChanged || this._prevPropTarget != this._propTarget;
     }
     private _updateNativeEvents() {
         const props = this.props;
@@ -1085,6 +1225,54 @@ export default class MoveableManager<T = {}>
             }
             return className.trim();
         }).filter(Boolean).join(" ");
+    }
+    private _updateResizeObserver(prevProps: MoveableDefaultOptions) {
+        const props = this.props;
+        const target = props.target;
+        const win = getWindow(this.getControlBoxElement());
+
+        if (!win.ResizeObserver || !target || !props.useResizeObserver) {
+            this._reiszeObserver?.disconnect();
+            return;
+        }
+
+        if (prevProps.target === target && this._reiszeObserver) {
+            return;
+        }
+
+        const observer = new win.ResizeObserver(this.checkUpdateRect);
+
+        observer.observe(target!, {
+            box: "border-box",
+        });
+        this._reiszeObserver = observer;
+    }
+    private _updateMutationObserver(prevProps: MoveableDefaultOptions) {
+        const props = this.props;
+        const target = props.target;
+        const win = getWindow(this.getControlBoxElement());
+
+        if (!win.MutationObserver || !target || !props.useMutationObserver) {
+            this._mutationObserver?.disconnect();
+            return;
+        }
+
+        if (prevProps.target === target && this._mutationObserver) {
+            return;
+        }
+
+        const observer = new win.MutationObserver(records => {
+            for (const mutation of records) {
+                if (mutation.type === "attributes" && mutation.attributeName === "style") {
+                    this.checkUpdateRect();
+                }
+            }
+        });
+
+        observer.observe(target!, {
+            attributes: true,
+        });
+        this._mutationObserver = observer;
     }
 }
 

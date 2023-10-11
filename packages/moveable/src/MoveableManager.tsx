@@ -1,12 +1,12 @@
 import { ref, Properties } from "framework-utils";
 import * as React from "react";
-import { render } from "react-dom";
+import { renderSelf, ContainerProvider } from "croact";
 import InnerMoveable from "./InnerMoveable";
 import {
     MoveableInterface,
     MoveableOptions, MoveableProperties,
 } from "react-moveable/types";
-import { camelize, isArray } from "@daybrush/utils";
+import { camelize, getDocument, isArray } from "@daybrush/utils";
 import { MoveableEventsParameters } from "./types";
 import { PROPERTIES, EVENTS, METHODS } from "./consts";
 import EventEmitter from "@scena/event-emitter";
@@ -45,12 +45,13 @@ import EventEmitter from "@scena/event-emitter";
 })
 class MoveableManager extends EventEmitter<MoveableEventsParameters> {
     private innerMoveable!: InnerMoveable | null;
-    private tempElement: HTMLElement | null = document.createElement("div");
-
+    private containerProvider: ContainerProvider | null = null;
+    private selfElement: HTMLElement | null = null;
+    private _warp = false;
     /**
      *
      */
-    constructor(parentElement: HTMLElement | SVGElement, options: MoveableOptions = {}) {
+    constructor(parentElement: HTMLElement, options: MoveableOptions = {}) {
         super();
         const nextOptions = { ...options };
 
@@ -59,16 +60,26 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
         EVENTS.forEach(name => {
             events[camelize(`on ${name}`)] = (e: any) => this.trigger<any>(name, e);
         });
+        let selfElement!: HTMLElement;
 
-        render(
+        if (options.warpSelf) {
+            delete options.warpSelf;
+            this._warp = true;
+            selfElement = parentElement;
+        } else {
+            selfElement = getDocument(parentElement).createElement("div");
+            parentElement.appendChild(selfElement);
+        }
+        this.containerProvider = renderSelf(
             <InnerMoveable
                 ref={ref(this, "innerMoveable")}
-                parentElement={parentElement}
                 {...nextOptions}
                 {...events}
-            />,
-            this.tempElement,
+            /> as any,
+            selfElement,
         );
+
+        this.selfElement = selfElement;
         const target = nextOptions.target!;
         if (isArray(target) && target.length > 1) {
             this.updateRect();
@@ -88,9 +99,20 @@ class MoveableManager extends EventEmitter<MoveableEventsParameters> {
         this.getMoveable().dragStart(e);
     }
     public destroy() {
-        render(null as any, this.tempElement!);
+        const selfElement = this.selfElement!;
+
+        renderSelf(
+            null,
+            selfElement!,
+            this.containerProvider,
+        );
+        if (!this._warp) {
+            selfElement?.parentElement?.removeChild(selfElement);
+        }
+        this.containerProvider = null;
+
         this.off();
-        this.tempElement = null;
+        this.selfElement = null;
         this.innerMoveable = null;
     }
     private getMoveable() {

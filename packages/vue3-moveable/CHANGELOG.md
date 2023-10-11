@@ -3,6 +3,240 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.2](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.26.1...vue3-moveable@0.26.2) (2023-09-19)
+
+
+### :mega: Other
+
+* publish packages ([ecf15ab](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/ecf15ab399bb4d9f6752cb84b0d6b06d15e5c426))
+
+
+
+## [0.26.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.26.0...vue3-moveable@0.26.1) (2023-07-11)
+
+
+### :mega: Other
+
+* publish packages ([27bda8e](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/27bda8ea3d9751847fc073519a832b3464242d3c))
+
+
+
+## [0.26.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.25.2...vue3-moveable@0.26.0) (2023-07-09)
+
+
+### :mega: Other
+
+* publish packages ([25cae7f](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/25cae7f46aa28dcb948a8690fd6062b7e15d72ff))
+
+
+
+## [0.25.2](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.25.1...vue3-moveable@0.25.2) (2023-07-04)
+
+
+### :mega: Other
+
+* publish packages ([9467cf4](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/9467cf45fd2871573df8886eb134c67a8b0f916d))
+
+
+
+## [0.25.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.24.1...vue3-moveable@0.25.1) (2023-07-02)
+
+
+### :mega: Other
+
+* publish packages ([5697e80](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/5697e8050f486a83ea409b856d1f670759ba6910))
+* publish packages ([5e76998](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/5e76998ba0a90efcbb0c2e4fe8030ca47a1842d4))
+
+
+
+## [0.24.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.24.0...vue3-moveable@0.24.1) (2023-06-28)
+
+
+### :house: Code Refactoring
+
+* change rollup to vite ([213f346](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/213f346257289eaec6f3f6f618e8fba33859c384))
+
+
+### :mega: Other
+
+* fix update modules ([bb608dc](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/bb608dc0d1d9eb13e538d1026c05809d89757b1d))
+* publish packages ([510d7cd](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/510d7cdf76eef4a17cc75d95634ebcb6d9688f8e))
+
+
+
+## [0.24.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.23.0...vue3-moveable@0.24.0) (2023-06-25)
+
+
+### :mega: Other
+
+* publish packages ([f893cca](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/f893ccaa176d31ef9ddb241d2cd4a1fb098cdae0))
+
+
+
+## [0.23.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.22.9...vue3-moveable@0.23.0) (2023-06-04)
+
+
+### :mega: Other
+
+* update packages ([8d65572](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/8d65572384ae0fdff288fe78fbeb5d249b070eb7))
+
+
+
+## [0.22.9](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.22.8...vue3-moveable@0.22.9) (2023-05-16)
+
+
+### :mega: Other
+
+* publish packages ([5bd22bb](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/5bd22bb009e10a4f8032f35c2ae3b490f4d94e5b))
+
+
+
+## [0.22.8](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.22.7...vue3-moveable@0.22.8) (2023-05-15)
+
+
+### :mega: Other
+
+* publish packages ([91aa8bc](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/91aa8bc1bdefc65cde8c032f1c7ba13ca54ad2fa))
+
+
+
+## [0.22.7](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.22.6...vue3-moveable@0.22.7) (2023-05-09)
+
+
+### :mega: Other
+
+* publish packages ([40dd902](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/40dd9022c41244ab009d621861ddc2ac63768748))
+
+
+
+## [0.22.6](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.22.0...vue3-moveable@0.22.6) (2023-05-08)
+
+
+### :rocket: New Features
+
+* update croact version #902 ([e328e21](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/e328e2170438fe27f60f307ae976183fbfb5e96e))
+
+
+### :bug: Bug Fix
+
+* fix files filed #910 #909 #907 ([a4995ab](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/a4995ab1acb3a34974e1d5a20d17fb2ee17ddc0c))
+
+
+### :mega: Other
+
+* publish packages ([d0f0532](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/d0f0532bfb42fe98ee95748839a639fddbe4b9d6))
+* publish packages ([e1e86a9](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/e1e86a95ebff9d18ad7a5ebede3bd5bd66465b5d))
+* publish packages ([60a747e](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/60a747ee3c373f83fb759a8482e2365e77dcb5e8))
+
+
+
+## [0.22.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.21.1...vue3-moveable@0.22.0) (2023-05-01)
+
+
+### :mega: Other
+
+* publish packages ([24934e3](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/24934e317de2e5ff622bd9ab0dec8d75a7c05c48))
+
+
+
+## [0.21.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.21.0...vue3-moveable@0.21.1) (2023-04-16)
+
+
+### :mega: Other
+
+* publish packages ([a623eda](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/a623eda2702067397159742dd0c6ed16b99bbe22))
+
+
+
+## [0.21.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.20.0...vue3-moveable@0.21.0) (2023-04-13)
+
+
+### :bug: Bug Fix
+
+* fix vue3 type ([d980b35](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/d980b3579572d150b27736e81ca7ba2580ee0a8a))
+
+
+### :mega: Other
+
+* publish packages ([1177427](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/11774277bafd9c60e9cef3c9a6fa38a3e1c4077d))
+
+
+
+## [0.20.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.19.4...vue3-moveable@0.20.0) (2023-03-26)
+
+
+### :mega: Other
+
+* publish packages ([7580d27](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/7580d272fe857aadfbdbc9df264e0a413dd56588))
+
+
+
+## [0.19.4](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.19.3...vue3-moveable@0.19.4) (2023-03-21)
+
+
+### :memo: Documentation
+
+* fix README ([7426492](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/7426492de210ab6f38d411d96e6d843d7423f555))
+
+
+### :mega: Other
+
+* publish packages ([ae54ef4](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/ae54ef4c660ae789867e4286990f234cc808a379))
+
+
+
+## [0.19.3](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.19.2...vue3-moveable@0.19.3) (2023-03-14)
+
+
+### :memo: Documentation
+
+* fix story url ([8977306](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/897730620480d8e830c4b53401a28d03b42b9a5f))
+
+
+### :mega: Other
+
+* update packages ([5b03d09](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/5b03d09a0cd298d47597fc8c8c9c6fdd4cd5a267))
+
+
+
+## [0.19.2](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.19.0...vue3-moveable@0.19.2) (2023-03-10)
+
+
+### :mega: Other
+
+* publish packages ([5589402](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/55894029a463f96a1f42827330b092be3fb63bf2))
+* update packages #856 #847 ([a78c8e3](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/a78c8e3c7ff8c3eb347a7617ddc76c807b57633e))
+
+
+
+## [0.19.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.18.1...vue3-moveable@0.19.0) (2023-03-08)
+
+
+### :mega: Other
+
+* publish packages ([645e290](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/645e290a53b477b468042e05447e2f8f8aea6ed0))
+
+
+
+## [0.18.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.17.1...vue3-moveable@0.18.1) (2023-01-29)
+
+
+### :mega: Other
+
+* publish packages ([24c9567](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/24c9567e2ec00392d2d445298031c39de0331eae))
+* publish packages ([0e0a03d](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/0e0a03dd6c234ded050db8206e585c5fa2da1848))
+
+
+
+## [0.17.1](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.17.0...vue3-moveable@0.17.1) (2022-12-16)
+
+
+### :mega: Other
+
+* publish packages ([d088ad9](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/commit/d088ad9ed64889f4fd6143b89410f5d5e372105f))
+
+
+
 ## [0.17.0](https://github.com/daybrush/moveable/blob/master/packages/vue3-moveable/compare/vue3-moveable@0.16.1...vue3-moveable@0.17.0) (2022-12-10)
 
 

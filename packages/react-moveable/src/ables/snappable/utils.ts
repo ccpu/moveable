@@ -11,6 +11,15 @@ import {
 } from "../../utils";
 export const VERTICAL_NAMES = ["left", "right", "center"] as const;
 export const HORIZONTAL_NAMES = ["top", "bottom", "middle"] as const;
+export const SNAP_SKIP_NAMES_MAP = {
+    "left": "start",
+    "right": "end",
+    "center": "center",
+    "top": "start",
+    "bottom": "end",
+    "middle": "center",
+};
+
 export const VERTICAL_NAMES_MAP = {
     start: "left",
     end: "right",
@@ -21,6 +30,17 @@ export const HORIZONTAL_NAMES_MAP = {
     end: "bottom",
     center: "middle",
 } as const;
+
+
+
+export function getInitialBounds() {
+    return {
+        left: false,
+        top: false,
+        right: false,
+        bottom: false,
+    };
+}
 
 
 export function hasGuidelines(
@@ -94,6 +114,8 @@ export function splitSnapDirectionPoses(
     const verticalNames = VERTICAL_NAMES.filter(name => name in nextSnapPoses);
 
     return {
+        horizontalNames,
+        verticalNames,
         horizontal: horizontalNames.map(name => nextSnapPoses[name]!),
         vertical: verticalNames.map(name => nextSnapPoses[name]!),
     };

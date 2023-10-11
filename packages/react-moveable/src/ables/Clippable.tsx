@@ -11,6 +11,8 @@ import {
     getSizeDistByDist,
     getProps,
     fillCSSObject,
+    abs,
+    sign,
 } from "../utils";
 import { plus, minus, multiply } from "@scena/matrix";
 import { getDragDist, calculatePointerDist, setDragStart } from "../gesto/GestoUtils";
@@ -52,7 +54,6 @@ export function moveControlPos(
             // 0 1 2
             // 7   3
             // 6 5 4
-
             const fixedIndex = (index + 4) % 8;
             const fixedPosition = controlPoses[fixedIndex].pos;
             const sizeDirection = [0, 0];
@@ -258,60 +259,60 @@ function removeClipPath(moveable: MoveableManagerInterface<ClippableProps>, e: a
 
 export default {
     name: "clippable",
-    props: {
-        clippable: Boolean,
-        defaultClipPath: String,
-        customClipPath: String,
-        keepRatio: Boolean,
-        clipRelative: Boolean,
-        clipArea: Boolean,
-        dragWithClip: Boolean,
-        clipTargetBounds: Boolean,
-        clipVerticalGuidelines: Array,
-        clipHorizontalGuidelines: Array,
-        clipSnapThreshold: Boolean,
-    } as const,
-    events: {
-        onClipStart: "clipStart",
-        onClip: "clip",
-        onClipEnd: "clipEnd",
-    } as const,
+    props: [
+        "clippable",
+        "defaultClipPath",
+        "customClipPath",
+        "keepRatio",
+        "clipRelative",
+        "clipArea",
+        "dragWithClip",
+        "clipTargetBounds",
+        "clipVerticalGuidelines",
+        "clipHorizontalGuidelines",
+        "clipSnapThreshold",
+    ] as const,
+    events: [
+        "clipStart",
+        "clip",
+        "clipEnd",
+    ] as const,
     css: [
         `.control.clip-control {
-    background: #6d6;
-    cursor: pointer;
+background: #6d6;
+cursor: pointer;
 }
 .control.clip-control.clip-radius {
-    background: #d66;
+background: #d66;
 }
 .line.clip-line {
-    background: #6e6;
-    cursor: move;
-    z-index: 1;
+background: #6e6;
+cursor: move;
+z-index: 1;
 }
 .clip-area {
-    position: absolute;
-    top: 0;
-    left: 0;
+position: absolute;
+top: 0;
+left: 0;
 }
 .clip-ellipse {
-    position: absolute;
-    cursor: move;
-    border: 1px solid #6d6;
-    border: var(--zoompx) solid #6d6;
-    border-radius: 50%;
-    transform-origin: 0px 0px;
+position: absolute;
+cursor: move;
+border: 1px solid #6d6;
+border: var(--zoompx) solid #6d6;
+border-radius: 50%;
+transform-origin: 0px 0px;
 }`,
         `:host {
-    --bounds-color: #d66;
+--bounds-color: #d66;
 }`,
         `.guideline {
-    pointer-events: none;
-    z-index: 2;
+pointer-events: none;
+z-index: 2;
 }`,
         `.line.guideline.bounds {
-    background: #d66;
-    background: var(--bounds-color);
+background: #d66;
+background: var(--bounds-color);
 }`,
     ],
     render(moveable: MoveableManagerInterface<ClippableProps, ClippableState>, React: Renderer): any[] {
@@ -319,6 +320,7 @@ export default {
             customClipPath,
             defaultClipPath,
             clipArea, zoom,
+            groupable,
         } = moveable.props;
         const {
             target, width, height, allMatrix, is3d, left, top,
@@ -328,7 +330,7 @@ export default {
             rotation: rotationRad,
         } = moveable.getState();
 
-        if (!target) {
+        if (!target || groupable) {
             return [];
         }
 
@@ -503,7 +505,7 @@ export default {
         return this.dragControlStart(moveable, e);
     },
     drag(moveable: MoveableManagerInterface<ClippableProps, ClippableState>, e: any) {
-        return this.dragControl(moveable, {...e, isDragTarget: true });
+        return this.dragControl(moveable, { ...e, isDragTarget: true });
     },
     dragEnd(moveable: MoveableManagerInterface<ClippableProps, ClippableState>, e: any) {
         return this.dragControlEnd(moveable, e);
@@ -593,8 +595,8 @@ export default {
         if (isControl && !isAll) {
             const { horizontal, vertical } = clipPoses[clipIndex];
             const dist = [
-                distX * Math.abs(horizontal),
-                distY * Math.abs(vertical),
+                distX * abs(horizontal),
+                distY * abs(vertical),
             ];
             dists = moveControlPos(clipPoses, clipIndex, dist, isRect, keepRatio);
         } else if (isAll) {
@@ -609,8 +611,8 @@ export default {
 
         if (isCircle || isEllipse) {
             const guideRect = getRect(nextPoses);
-            const ry = Math.abs(guideRect.bottom - guideRect.top);
-            const rx = Math.abs(isEllipse ? guideRect.right - guideRect.left : ry);
+            const ry = abs(guideRect.bottom - guideRect.top);
+            const rx = abs(isEllipse ? guideRect.right - guideRect.left : ry);
             const bottom = nextPoses[0][1] + ry;
             const left = nextPoses[0][0] - rx;
             const right = nextPoses[0][0] + rx;
@@ -676,10 +678,10 @@ export default {
 
 
             const distSnapX = verticalSnapInfo.isBound
-                ? Math.abs(snapOffsetX)
+                ? abs(snapOffsetX)
                 : (verticalSnapInfo.snapIndex === 0 ? -snapOffsetX : snapOffsetX);
             const distSnapY = horizontalSnapInfo.isBound
-                ? Math.abs(snapOffsetY)
+                ? abs(snapOffsetY)
                 : (horizontalSnapInfo.snapIndex === 0 ? -snapOffsetY : snapOffsetY);
             cx -= distSnapX;
             cy -= distSnapY;
@@ -704,11 +706,10 @@ export default {
             let left = guidePoses[7][0];
             let right = guidePoses[3][0];
 
-
-            if (snapOffsetY <= snapOffsetX) {
-                snapOffsetY = snapOffsetX / ratio;
+            if (abs(snapOffsetY) <= abs(snapOffsetX)) {
+                snapOffsetY = sign(snapOffsetY) * abs(snapOffsetX) / ratio;
             } else {
-                snapOffsetX = snapOffsetY * ratio;
+                snapOffsetX = sign(snapOffsetX) * abs(snapOffsetY) * ratio;
             }
             if (direction!.indexOf("w") > -1) {
                 left -= snapOffsetX;
@@ -726,7 +727,6 @@ export default {
                 top += snapOffsetY / 2;
                 bottom -= snapOffsetY / 2;
             }
-
             const nextControlPoses = getRectPoses(top, right, bottom, left);
 
             guidePoses.forEach((pos, i) => {

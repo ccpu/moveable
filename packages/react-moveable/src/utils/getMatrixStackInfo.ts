@@ -2,7 +2,8 @@ import {
     convertCSStoMatrix, convertDimension,
     createIdentityMatrix, createOriginMatrix, createScaleMatrix,
 } from "@scena/matrix";
-import { IS_WEBKIT, IS_SAFARI_ABOVE15, IS_FIREFOX } from "../consts";
+import { getCachedStyle } from "../store/Store";
+import { IS_WEBKIT, IS_SAFARI_ABOVE15, IS_FIREFOX, IS_CHROMIUM109 } from "../consts";
 import { MatrixInfo } from "../types";
 import {
     getOffsetInfo, getElementTransform,
@@ -10,6 +11,8 @@ import {
     convert3DMatrixes, getOffsetPosInfo,
     getSVGMatrix, getBodyOffset, getAbsoluteMatrix,
 } from "../utils";
+import { getDocumentBody, getDocumentElement } from "@daybrush/utils";
+import { parseMat } from "css-to-mat";
 
 
 export function getShadowRoot(parentElement: HTMLElement | SVGElement) {
@@ -23,14 +26,43 @@ export function getShadowRoot(parentElement: HTMLElement | SVGElement) {
     return;
 }
 
+
+function getIndividualTransforms(getStyle: (property: string) => any) {
+    const scale = getStyle("scale") as string;
+    const rotate = getStyle("rotate") as string;
+    const translate = getStyle("translate") as string;
+    const individualTransforms: string[] = [];
+
+    if (translate && translate !== "0px" && translate !== "none") {
+        individualTransforms.push(`translate(${translate.split(/\s+/).join(",")})`);
+    }
+    if (rotate && rotate !== "1" && rotate !== "none") {
+        individualTransforms.push(`rotate(${rotate})`);
+    }
+    if (scale && scale !== "1" && scale !== "none") {
+        individualTransforms.push(`scale(${scale.split(/\s+/).join(",")})`);
+    }
+    return individualTransforms;
+}
+
+export interface MatrixStackInfo {
+    zoom: number;
+    offsetContainer: HTMLElement;
+    matrixes: MatrixInfo[];
+    targetMatrix: number[];
+    transformOrigin: number[];
+    targetOrigin: number[];
+    is3d: boolean;
+    hasFixed: boolean;
+}
 export function getMatrixStackInfo(
     target: SVGElement | HTMLElement,
     container?: SVGElement | HTMLElement | null,
     checkContainer?: boolean,
-) {
+): MatrixStackInfo {
     let el: SVGElement | HTMLElement | null = target;
     const matrixes: MatrixInfo[] = [];
-    const documentElement = document.documentElement || document.body;
+    const documentElement = getDocumentElement(target) || getDocumentBody(target);
     let requestEnd = !checkContainer && target === container || target === documentElement;
     let isEnd = requestEnd;
     let is3d = false;
@@ -45,11 +77,19 @@ export function getMatrixStackInfo(
 
     while (el && !isEnd) {
         isEnd = requestEnd;
-        const style: CSSStyleDeclaration = getComputedStyle(el);
-        const position = style.position;
-        const transform = getElementTransform(el, style);
-        let matrix: number[] = convertCSStoMatrix(getTransformMatrix(transform));
+        const getStyle = getCachedStyle(el);
+        const position = getStyle("position");
+        const transform = getElementTransform(el);
         const isFixed = position === "fixed";
+        const individualTransforms = getIndividualTransforms(getStyle);
+        let matrix: number[] = convertCSStoMatrix(getTransformMatrix(transform));
+        let offsetParent: HTMLElement;
+        let isOffsetEnd = false;
+        let isStatic = false;
+        let parentClientLeft = 0;
+        let parentClientTop = 0;
+        let fixedClientLeft = 0;
+        let fixedClientTop = 0;
         let fixedInfo: {
             hasTransform: boolean;
             fixedContainer: HTMLElement | null;
@@ -57,17 +97,17 @@ export function getMatrixStackInfo(
             hasTransform: false,
             fixedContainer: null,
         };
+
         if (isFixed) {
             hasFixed = true;
             fixedInfo = getPositionFixedInfo(el);
-
             offsetContainer = fixedInfo.fixedContainer!;
         }
 
         // convert 3 to 4
         const length = matrix.length;
 
-        if (!is3d && length === 16) {
+        if (!is3d && (length === 16 || individualTransforms.length)) {
             is3d = true;
             n = 4;
 
@@ -86,13 +126,13 @@ export function getMatrixStackInfo(
             origin,
             targetOrigin,
             offset: offsetPos,
-        } = getOffsetPosInfo(el, target, style);
+        } = getOffsetPosInfo(el, target);
         let [
             offsetLeft,
             offsetTop,
         ] = offsetPos;
 
-        if (tagName === "svg" && targetMatrix) {
+        if (tagName === "svg" && !(target as SVGSVGElement).ownerSVGElement && targetMatrix) {
             // scale matrix for svg's SVGElements.
             matrixes.push({
                 type: "target",
@@ -106,17 +146,14 @@ export function getMatrixStackInfo(
             });
         }
 
-        let offsetParent: HTMLElement;
-        let isOffsetEnd = false;
-        let isStatic = false;
 
-        const targetZoom = parseFloat((style as any).zoom) || 1;
+        const targetZoom = parseFloat(getStyle("zoom")) || 1;
 
         if (isFixed) {
             offsetParent = fixedInfo.fixedContainer!;
             isOffsetEnd = true;
         } else {
-            const offsetInfo = getOffsetInfo(el, container, false, true, style);
+            const offsetInfo = getOffsetInfo(el, container, false, true, getStyle);
             const offsetZoom = offsetInfo.offsetZoom;
 
             offsetParent = offsetInfo.offsetParent;
@@ -124,10 +161,10 @@ export function getMatrixStackInfo(
             isStatic = offsetInfo.isStatic;
             zoom *= offsetZoom;
 
-            if (offsetZoom !== 1 && isStatic) {
+            if ((offsetInfo.isCustomElement || offsetZoom !== 1) && isStatic) {
                 offsetLeft -= offsetParent.offsetLeft;
                 offsetTop -= offsetParent.offsetTop;
-            } else if (IS_FIREFOX) {
+            } else if (IS_FIREFOX || IS_CHROMIUM109) {
                 const parentSlotElement = offsetInfo.parentSlotElement;
 
                 if (parentSlotElement) {
@@ -159,10 +196,6 @@ export function getMatrixStackInfo(
             requestEnd = requestEnd || isOffsetEnd;
         }
 
-        let parentClientLeft = 0;
-        let parentClientTop = 0;
-        let fixedClientLeft = 0;
-        let fixedClientTop = 0;
 
         if (isFixed) {
             if (hasOffset && fixedInfo.hasTransform) {
@@ -177,7 +210,7 @@ export function getMatrixStackInfo(
                 parentClientTop = offsetParent.clientTop;
             }
             if (hasOffset && offsetParent === documentElement) {
-                const margin = getBodyOffset(el, false, style);
+                const margin = getBodyOffset(el, false);
 
                 offsetLeft += margin[0];
                 offsetTop += margin[1];
@@ -190,6 +223,19 @@ export function getMatrixStackInfo(
             matrix: getAbsoluteMatrix(matrix, n, origin),
         });
 
+        if (individualTransforms.length) {
+            matrixes.push({
+                type: "offset",
+                target: el,
+                matrix: createIdentityMatrix(n),
+            });
+
+            matrixes.push({
+                type: "target",
+                target: el,
+                matrix: getAbsoluteMatrix(parseMat(individualTransforms), n, origin),
+            });
+        }
         if (hasOffset) {
             const isElementTarget = el === target;
             const scrollLeft = isElementTarget ? 0 : el.scrollLeft;

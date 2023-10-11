@@ -1,10 +1,11 @@
-import builder from "@daybrush/builder";
+const builder = require("@daybrush/builder");
 
 const defaultOptions = {
     tsconfig: "tsconfig.build.json",
+    typescript2: true,
 };
 
-export default builder([{
+module.exports = builder([{
     ...defaultOptions,
     input: "src/index.ts",
     output: "./dist/snappable.esm.js",

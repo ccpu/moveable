@@ -59,16 +59,17 @@ function isValidPos(poses1: number[][], poses2: number[][]) {
 export default {
     name: "warpable",
     ableGroup: "size",
-    props: {
-        warpable: Boolean,
-        renderDirections: Array,
-        edge: Boolean,
-    } as const,
-    events: {
-        onWarpStart: "warpStart",
-        onWarp: "warp",
-        onWarpEnd: "warpEnd",
-    } as const,
+    props: [
+        "warpable",
+        "renderDirections",
+        "edge",
+        "displayAroundControls",
+    ] as const,
+    events: [
+        "warpStart",
+        "warp",
+        "warpEnd",
+    ] as const,
     viewClassName: getDirectionViewClassName("warpable"),
     render(moveable: MoveableManagerInterface<ResizableProps & ScalableProps & WarpableProps>, React: Renderer): any[] {
         const { resizable, scalable, warpable, zoom } = moveable.props;
@@ -148,7 +149,7 @@ export default {
         datas.posIndexes = getPosIndexesByDirection(direction);
 
         setDragStart(moveable, e);
-        setDefaultTransformIndex(e, "matrix3d");
+        setDefaultTransformIndex(moveable, e, "matrix3d");
 
         state.snapRenderInfo = {
             request: e.isRequest,
@@ -159,7 +160,7 @@ export default {
             set: (matrix: number[]) => {
                 datas.startValue = matrix;
             },
-            ...fillTransformStartEvent(e),
+            ...fillTransformStartEvent(moveable, e),
         });
         const result = triggerEvent(moveable, "onWarpStart", params);
         if (result !== false) {
@@ -183,7 +184,7 @@ export default {
         if (!isWarp) {
             return false;
         }
-        resolveTransformEvent(e, "matrix3d");
+        resolveTransformEvent(moveable, e, "matrix3d");
         if (hasGuidelines(moveable, "warpable")) {
             const selectedPoses: number[][] = posIndexes.map((index: number) => absolutePoses[index]);
 

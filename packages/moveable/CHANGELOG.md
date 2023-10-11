@@ -3,6 +3,283 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.51.2](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.51.1...moveable@0.51.2) (2023-09-19)
+
+
+### :bug: Bug Fix
+
+* fix roundable shadow condition ([adb09b7](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/adb09b7396271e7de7031c1d621d1232f3751a9b))
+
+
+### :mega: Other
+
+* publish packages ([ecf15ab](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/ecf15ab399bb4d9f6752cb84b0d6b06d15e5c426))
+
+
+
+## [0.51.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.51.0...moveable@0.51.1) (2023-07-11)
+
+
+### :mega: Other
+
+* publish packages ([27bda8e](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/27bda8ea3d9751847fc073519a832b3464242d3c))
+
+
+
+## [0.51.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.50.2...moveable@0.51.0) (2023-07-09)
+
+
+### :rocket: New Features
+
+* add `onBound` event #970 ([c9db51f](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/c9db51f8ef5f7a0d262323e381ec25ad5bfc391d))
+
+
+### :mega: Other
+
+* publish packages ([25cae7f](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/25cae7f46aa28dcb948a8690fd6062b7e15d72ff))
+
+
+
+## [0.50.2](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.50.1...moveable@0.50.2) (2023-07-04)
+
+
+### :mega: Other
+
+* publish packages ([9467cf4](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/9467cf45fd2871573df8886eb134c67a8b0f916d))
+
+
+
+## [0.50.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.49.1...moveable@0.50.1) (2023-07-02)
+
+
+### :bug: Bug Fix
+
+* fix choppy reisze #961 ([c8f9637](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/c8f9637ae319870cc6d4e9bf68eb98820f27f25e))
+* fix group's dragTargetRef #953 ([85d17d7](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/85d17d77751d474db88b7238dd39baccd6b7a78d))
+
+
+### :mega: Other
+
+* publish packages ([5697e80](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/5697e8050f486a83ea409b856d1f670759ba6910))
+* publish packages ([5e76998](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/5e76998ba0a90efcbb0c2e4fe8030ca47a1842d4))
+
+
+
+## [0.49.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.49.0...moveable@0.49.1) (2023-06-28)
+
+
+### :bug: Bug Fix
+
+* fix dragTarget's unset #960 ([8e60b38](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/8e60b385b8931a3aab953b315618ec15f9360611))
+
+
+### :mega: Other
+
+* fix update modules ([bb608dc](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/bb608dc0d1d9eb13e538d1026c05809d89757b1d))
+* publish packages ([510d7cd](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/510d7cdf76eef4a17cc75d95634ebcb6d9688f8e))
+
+
+
+## [0.49.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.48.0...moveable@0.49.0) (2023-06-25)
+
+
+### :mega: Other
+
+* publish packages ([f893cca](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/f893ccaa176d31ef9ddb241d2cd4a1fb098cdae0))
+
+
+
+## [0.48.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.47.9...moveable@0.48.0) (2023-06-04)
+
+
+### :rocket: New Features
+
+* support drag api #920 ([8f1a839](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/8f1a8396c429cf108da5417bc36cccd3ef46013c))
+
+
+### :bug: Bug Fix
+
+* support iframe context #932 ([3e87cc7](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/3e87cc7fed43160ca342630fed2f413876f8a518))
+
+
+### :mega: Other
+
+* update packages ([8d65572](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/8d65572384ae0fdff288fe78fbeb5d249b070eb7))
+
+
+
+## [0.47.9](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.47.8...moveable@0.47.9) (2023-05-16)
+
+
+### :mega: Other
+
+* publish packages ([5bd22bb](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/5bd22bb009e10a4f8032f35c2ae3b490f4d94e5b))
+
+
+
+## [0.47.8](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.47.7...moveable@0.47.8) (2023-05-15)
+
+
+### :bug: Bug Fix
+
+* update croact, css-styled version #916 ([b517b64](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/b517b6498a612c072eadc9354d6383363771ea6d))
+
+
+### :mega: Other
+
+* publish packages ([91aa8bc](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/91aa8bc1bdefc65cde8c032f1c7ba13ca54ad2fa))
+
+
+
+## [0.47.7](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.47.6...moveable@0.47.7) (2023-05-09)
+
+
+### :bug: Bug Fix
+
+* fix missing type #911 ([0f26c75](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/0f26c75261fe8996f8b1317ec2da473a9feb57d0))
+
+
+### :mega: Other
+
+* publish packages ([40dd902](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/40dd9022c41244ab009d621861ddc2ac63768748))
+
+
+
+## [0.47.6](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.47.0...moveable@0.47.6) (2023-05-08)
+
+
+### :rocket: New Features
+
+* update croact version #902 ([e328e21](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/e328e2170438fe27f60f307ae976183fbfb5e96e))
+
+
+### :bug: Bug Fix
+
+* fix files filed #910 #909 #907 ([a4995ab](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/a4995ab1acb3a34974e1d5a20d17fb2ee17ddc0c))
+
+
+### :mega: Other
+
+* publish packages ([d0f0532](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/d0f0532bfb42fe98ee95748839a639fddbe4b9d6))
+* publish packages ([e1e86a9](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/e1e86a95ebff9d18ad7a5ebede3bd5bd66465b5d))
+* publish packages ([60a747e](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/60a747ee3c373f83fb759a8482e2365e77dcb5e8))
+
+
+
+## [0.47.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.46.1...moveable@0.47.0) (2023-05-01)
+
+
+### :mega: Other
+
+* publish packages ([24934e3](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/24934e317de2e5ff622bd9ab0dec8d75a7c05c48))
+* update croact 1.0.1 #902 ([34433f3](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/34433f3ab1266fff29f1f74bf6a5176d238348b6))
+
+
+
+## [0.46.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.46.0...moveable@0.46.1) (2023-04-16)
+
+
+### :mega: Other
+
+* publish packages ([a623eda](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/a623eda2702067397159742dd0c6ed16b99bbe22))
+
+
+
+## [0.46.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.45.0...moveable@0.46.0) (2023-04-13)
+
+
+### :rocket: New Features
+
+* add croact ([b94c41c](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/b94c41c50cdf37da0136bd4d04f2237529253f45))
+* add croact compat ([233c6d0](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/233c6d0a905953b51c3fd5df1f7c58e7b1d03432))
+
+
+### :bug: Bug Fix
+
+* fix warpSelf ([8c86a3f](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/8c86a3f95e5d0b8832b1d9b65bf72f598eb8d0cb))
+
+
+### :mega: Other
+
+* publish packages ([1177427](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/11774277bafd9c60e9cef3c9a6fa38a3e1c4077d))
+
+
+
+## [0.45.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.44.4...moveable@0.45.0) (2023-03-26)
+
+
+### :mega: Other
+
+* publish packages ([7580d27](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/7580d272fe857aadfbdbc9df264e0a413dd56588))
+
+
+
+## [0.44.4](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.44.3...moveable@0.44.4) (2023-03-21)
+
+
+### :memo: Documentation
+
+* fix README ([7426492](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/7426492de210ab6f38d411d96e6d843d7423f555))
+
+
+### :mega: Other
+
+* publish packages ([ae54ef4](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/ae54ef4c660ae789867e4286990f234cc808a379))
+
+
+
+## [0.44.3](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.44.2...moveable@0.44.3) (2023-03-14)
+
+
+### :memo: Documentation
+
+* fix story url ([8977306](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/897730620480d8e830c4b53401a28d03b42b9a5f))
+
+
+### :mega: Other
+
+* update packages ([5b03d09](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/5b03d09a0cd298d47597fc8c8c9c6fdd4cd5a267))
+
+
+
+## [0.44.2](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.44.0...moveable@0.44.2) (2023-03-10)
+
+
+### :mega: Other
+
+* publish packages ([5589402](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/55894029a463f96a1f42827330b092be3fb63bf2))
+* update packages #856 #847 ([a78c8e3](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/a78c8e3c7ff8c3eb347a7617ddc76c807b57633e))
+
+
+
+## [0.44.0](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.43.1...moveable@0.44.0) (2023-03-08)
+
+
+### :mega: Other
+
+* publish packages ([645e290](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/645e290a53b477b468042e05447e2f8f8aea6ed0))
+
+
+
+## [0.43.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.42.2...moveable@0.43.1) (2023-01-29)
+
+
+### :mega: Other
+
+* publish packages ([24c9567](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/24c9567e2ec00392d2d445298031c39de0331eae))
+* publish packages ([0e0a03d](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/0e0a03dd6c234ded050db8206e585c5fa2da1848))
+
+
+
+## [0.42.2](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.42.1...moveable@0.42.2) (2022-12-16)
+
+
+### :mega: Other
+
+* publish packages ([d088ad9](https://github.com/daybrush/moveable/blob/master/packages/moveable/commit/d088ad9ed64889f4fd6143b89410f5d5e372105f))
+
+
+
 ## [0.42.1](https://github.com/daybrush/moveable/blob/master/packages/moveable/compare/moveable@0.41.1...moveable@0.42.1) (2022-12-10)
 
 

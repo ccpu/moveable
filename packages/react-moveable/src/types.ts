@@ -1,8 +1,9 @@
 import { IObject } from "@daybrush/utils";
 import Gesto, * as GestoTypes from "gesto";
 import CustomGesto from "./gesto/CustomGesto";
-import { MOVEABLE_EVENTS_MAP, MOVEABLE_PROPS_MAP } from "./ables/consts";
 import { MoveableTargetInfo } from "./utils/getMoveableTargetInfo";
+import { DragScrollOptions } from "@scena/dragscroll";
+import { MOVEABLE_PROPS, MOVEABLE_EVENTS } from "./ables/consts";
 
 export interface MoveableClientRect {
     left: number;
@@ -51,6 +52,7 @@ export interface MoveablePosition {
 /**
  * @typedef
  * @memberof Moveable
+ * @options
  */
 export interface DefaultOptions {
     /**
@@ -59,40 +61,59 @@ export interface DefaultOptions {
      */
     target?: SVGElement | HTMLElement | null;
     /**
-     * The target(s) to drag Moveable target(s)
+     * The external target(s) to drag Moveable target(s)
      * @default target
      */
-    dragTarget?: SVGElement | HTMLElement | null;
+    dragTarget?: MoveableRefType | null;
     /**
-     * Moveable Container. Don't set it.
-     * @private
+     * If dragTarget is set directly, taget itself cannot be dragged.
+     * Whether to drag the target as well.
+     * @default false
+     */
+    dragTargetSelf?: boolean;
+    /**
+     * Container area where drag works
+     * @default window
+     */
+    dragContainer?: null | Window | MoveableRefType<HTMLElement>;
+    /**
+     * A container into which Moveables are inserted.
+     * Set it only when used within the slot of Web Components or when the container is different.
      * @default parentElement
      */
     container?: SVGElement | HTMLElement | null;
     /**
-     * Moveable Portal Container to support other frameworks. Don't set it.
+     * Whether to warp itself to the container itself. Don't set it.
      * @private
-     * @default parentElement
+     * @default false
      */
-    portalContainer?: HTMLElement | null;
+    warpSelf?: boolean;
     /**
      * Moveable Root Container (No Transformed Container)
      * @default parentElement
-     * @see {@link https://daybrush.com/moveable/storybook2/?path=/story/options--use-rootcontainer-with-transformed-container-css-transform See Storybook}
+     * @story options--options-root-container
      */
     rootContainer?: MoveableRefType<HTMLElement>;
     /**
      * If you want to set the dragging information to the viewer, refer to the following.
      * @default null
-     * @see {@link https://daybrush.com/moveable/storybook2/?path=/story/options--cursor-is-applied-in-viewer-during-dragging See Storybook}
+     * @story options--options-view-container
      */
     viewContainer?: MoveableRefType<HTMLElement>;
     /**
      * Whether the target size is detected and updated whenever it changes.
+     * It is more effective when used together with `useMutationObserver`.
      * @default false
-     * @see {@link https://daybrush.com/moveable/storybook2/?path=/story/options--useresizeobserver See Storybook}
+     * @story options--options-resize-observer
      */
     useResizeObserver?: boolean;
+    /**
+     * Whether the target size, pos in inline style is detected and updated whenever it changes.
+     * It is more effective when used together with `useResizeObserver`.
+     * @default false
+     * @story options--options-mutation-observer
+     */
+    useMutationObserver?: boolean;
     /**
      * Zooms in the elements of a moveable.
      * @default 1
@@ -155,10 +176,24 @@ export interface DefaultOptions {
      */
     stopPropagation?: boolean;
     /**
+     * Whether to call preventDefault on touchstart or mousedown
+     * @since 0.44.0
+     * @default true
+     */
+    preventDefault?: boolean;
+    /**
      * Prevent click event on drag. (mousemove, touchmove)
      * @default true
      */
     preventClickEventOnDrag?: boolean;
+    /**
+     * Whether to drag the focused input
+     * If `checkInput` is true, this option is not applied.
+     * @since 0.47.0
+     * @story options--options-drag-focused-input
+     * @default false
+     */
+    dragFocusedInput?: boolean;
     /**
      * Prevent click event on dragStart. (mousedown, touchstart)
      * @default false
@@ -182,10 +217,29 @@ export interface DefaultOptions {
      */
     useAccuratePosition?: boolean;
     /**
+     * By adding padding to the line, you can increase the area of the line that can be clicked and dragged.
+     * @since 0.43.0
+     * @story options--options-line-padding
+     * @default 0
+     */
+    linePadding?: number;
+    /**
+     * By adding padding to the control, you can increase the area of the control that can be clicked and dragged.
+     * Either `rotateAroundControls` or `displayAroundControls` can be used.
+     * @since 0.44.0
+     * @story options--options-control-padding
+     * @default 0
+     */
+    controlPadding?: number;
+    /**
      * @private
      * single => group로 변환과정에 도형 유지를 위한 첫 렌더링 state
      */
     firstRenderState?: MoveableManagerState | null;
+    /**
+     * @private
+     */
+    requestStyles?: string[];
     /**
      * If you are using React 18's concurrent mode, use `flushSync` for UI sync.
      * @default empty function
@@ -219,6 +273,7 @@ export type MoveableManagerState<T = {}> = {
     container: SVGElement | HTMLElement | null | undefined;
     disableNativeEvent: boolean;
     gestos: Record<string, Gesto | CustomGesto | null>;
+    renderLines: number[][][];
     renderPoses: number[][];
     posDelta: number[];
     style: Partial<Writable<CSSStyleDeclaration>>;
@@ -275,12 +330,14 @@ export interface PaddingBox {
 export interface Renderer {
     createElement(type: any, props?: any, ...children: any[]): any;
 }
+
 /**
  * @typedef
  * @memberof Moveable.Snappable
  */
 export interface SnapGuideline {
     type: "horizontal" | "vertical";
+    direction: string;
     hide?: boolean;
     element?: Element | null;
 
@@ -295,9 +352,19 @@ export interface SnapGuideline {
     sizes?: number[];
 
     gap?: number;
+    elementDirection?: string;
     elementRect?: SnapElementRect;
     gapRects?: SnapElementRect[];
 }
+
+/**
+ * @typedef
+ * @memberof Moveable.Snappable
+ */
+export interface SnapElementGuideline extends SnapGuideline {
+
+}
+
 export interface SnapBoundInfo {
     isBound: boolean;
     isSnap: boolean;
@@ -308,6 +375,7 @@ export interface SnapBoundInfo {
     snap?: SnapInfo;
 }
 export interface BoundInfo {
+    direction?: "start" | "end";
     isBound: boolean;
     offset: number;
     pos: number;
@@ -317,19 +385,25 @@ export interface SnapOffsetInfo {
     offset: number;
     pos: number;
 }
+export interface SnapDirectionInfo extends SnapInfo {
+    direction: string;
+}
 export interface SnapInfo {
     isSnap: boolean;
     index: number;
+    direction: string;
     posInfos: SnapPosInfo[];
 }
 export interface SnapPosInfo {
     pos: number;
     index: number;
+    direction: string;
     guidelineInfos: SnapGuidelineInfo[];
 }
 export interface SnapGuidelineInfo {
     dist: number;
     offset: number;
+    direction: string;
     guideline: SnapGuideline;
 }
 
@@ -382,11 +456,23 @@ export interface MoveableProps extends
 /**
  * @memberof Moveable
  * @typedef
- * @extends Moveable.MoveableDefaultOptions
  */
-export interface MoveableDefaultProps extends ExcludeKeys<MoveableDefaultOptions, "target"> {
-    target?: MoveableRefTargetType;
+export interface MoveableDefaultEvents {
     onChangeTargets?: (e: OnChangeTargets) => void;
+}
+
+export interface MoveableInitalOptions extends ExcludeKeys<MoveableDefaultOptions, "target"> {
+    target?: MoveableRefTargetType;
+}
+
+/**
+ * @memberof Moveable
+ * @typedef
+ * @extends Moveable.MoveableDefaultOptions
+ * @extends Moveable.MoveableDefaultEvents
+ */
+export interface MoveableDefaultProps extends MoveableInitalOptions, MoveableDefaultEvents {
+
 }
 /**
  * @memberof Moveable
@@ -428,7 +514,7 @@ export interface MoveableRefObject<T extends Element = HTMLElement | SVGElement>
  * @extends Moveable.Clickable.ClickableOptions
  */
 export interface MoveableOptions extends
-    MoveableDefaultProps,
+    MoveableInitalOptions,
     DraggableOptions,
     DragAreaOptions,
     OriginDraggableOptions,
@@ -454,10 +540,13 @@ export type MoveableState = MoveableManagerState;
  * In Able, you can manage drag events, props, state, fire event props, and render elements.
  * @memberof Moveable
  */
-export interface Able<Props extends IObject<any> = IObject<any>, Events extends IObject<any> = IObject<any>> {
+export interface Able<
+    Props extends IObject<any> = IObject<any>,
+    Events extends IObject<any> = IObject<any>
+> {
     name: string;
-    props?: { [key in keyof Props]: any };
-    events?: { [key in keyof Events]: string };
+    props?: readonly (keyof Props)[];
+    events?: readonly (keyof Events)[];
     // Whether to always include in able. It is recommended to use always in frameworks other than react
     always?: boolean;
     ableGroup?: string;
@@ -471,6 +560,13 @@ export interface Able<Props extends IObject<any> = IObject<any>, Events extends 
      * ["borderRadius", "top", "left"]
      */
     requestStyle?(): string[];
+    /**
+     * If you use group, you can request child style. Specify the name of the style in camel case.
+     * You can check it with `moveable.state.style`
+     * @exmaple
+     * ["borderRadius", "top", "left"]
+     */
+    requestChildStyle?(): string[];
     /**
      * You can specify the class name to be added to the Moveable control box.
      */
@@ -554,11 +650,11 @@ export interface OnEvent {
     /**
      * The Moveable instance
      */
-    currentTarget: MoveableManagerInterface<any, any>;
+    currentTarget: MoveableManagerInterface<Record<string, any>, Record<string, any>>;
     /**
      * The Moveable instance
      */
-    moveable: MoveableManagerInterface<any, any>;
+    moveable: MoveableManagerInterface<Record<string, any>, Record<string, any>>;
     /**
      * The Moveable's target
      */
@@ -591,6 +687,10 @@ export interface OnEvent {
      * Calling `stopDrag` in a drag-related event ends the drag.
      */
     stopDrag(): void;
+    /**
+     * Whether the event did not occur externally
+     */
+    isTrusted: boolean;
 
 }
 /**
@@ -954,7 +1054,19 @@ export interface OnScaleStart extends OnEvent, OnTransformStartEvent {
      * Set the ratio of width and height.
      * @default offsetWidth / offsetHeight
      */
-    setRatio: (ratio: number) => any;
+    setRatio: (ratio: number) => void;
+    /**
+     * You can set the min scale width, height value.
+     * scale size = scale value * offset size
+     * @default [-Infinity, -Infinity]
+     */
+    setMinScaleSize: (min: number[]) => void;
+    /**
+     * You can set the max scale width, height value.
+     * scale size = scale value * offset size
+     * @default [Infinity, Infinity]
+     */
+    setMaxScaleSize: (max: number[]) => void;
 }
 
 /**
@@ -1729,6 +1841,11 @@ export interface OnRender extends OnEvent, CSSObject {
      * Whether or not it is being pinched.
      */
     isPinch: boolean;
+    /**
+     * Return transform as a transform object.
+     * `rotate` is a number and everything else is an array of numbers.
+     */
+    transformObject: Record<string, any>;
 }
 
 /**
@@ -1751,6 +1868,11 @@ export interface OnRenderEnd extends OnEvent, CSSObject {
      * Whether or not it is being pinched.
      */
     isDrag: boolean;
+    /**
+     * Return transform as a transform object.
+     * `rotate` is a number and everything else is an array of numbers.
+     */
+    transformObject: Record<string, any>;
 }
 
 export type EventInterface<T extends IObject<any> = {}> = {
@@ -1834,6 +1956,11 @@ export interface DraggableOptions {
      */
     throttleDragRotate?: number;
     /**
+     * Hides the guidelines that appear when using the `throttleDragRotate` prop.
+     * @default false
+     */
+    hideThrottleDragRotateLine?: boolean;
+    /**
      * start angle(degree) of x,y for throttleDragRotate when drag.
      * @default 0
      */
@@ -1873,7 +2000,7 @@ export interface PaddingOptions {
      * Add padding around the target to increase the drag area.
      * @default null
      */
-    padding?: PaddingBox;
+    padding?: PaddingBox | number;
 }
 /**
  * @typedef
@@ -1885,6 +2012,12 @@ export interface OriginOptions {
      * @default true
      */
     origin?: boolean;
+    /**
+     * Sets the transform origin based on the svg target. If not set, it is set as the transform origin based on the owner of svg.
+     * @since 0.47.0
+     * @default ""
+     */
+    svgOrigin?: string;
 }
 /**
  * @typedef
@@ -2011,6 +2144,49 @@ export interface ResizableOptions extends RenderDirections {
 }
 /**
  * @typedef
+ * @memberof Moveable
+ * @extends Moveable.AbleRequestParam
+ * @description the Resizable's request parameter
+ */
+export interface AbleRequesters {
+    draggable: DraggableRequestParam;
+    resizable: ResizableRequestParam;
+    scalable: ScalableRequestParam;
+    rotatable: RotatableRequestParam;
+    [key: string]: AbleRequestParam;
+}
+
+/**
+ * @typedef
+ * @memberof Moveable.Draggable
+ * @extends Moveable.AbleRequestParam
+ * @description the Draggable's request parameter
+ */
+export interface DraggableRequestParam extends AbleRequestParam {
+    /**
+     * x position
+     */
+    x?: number;
+    /**
+     * y position
+     */
+    y?: number;
+    /**
+     * X number to move
+     */
+    deltaX?: number;
+    /**
+     * Y number to move
+     */
+    deltaY?: number;
+    /**
+     * whether to use with `snappable`
+     */
+    useSnap?: boolean;
+}
+
+/**
+ * @typedef
  * @memberof Moveable.Resizable
  * @extends Moveable.AbleRequestParam
  * @description the Resizable's request parameter
@@ -2045,6 +2221,10 @@ export interface ResizableRequestParam extends AbleRequestParam {
      *
      */
     horizontal?: boolean;
+    /**
+     * whether to use with `snappable`
+     */
+    useSnap?: boolean;
 }
 
 export interface ResizableEvents {
@@ -2117,7 +2297,33 @@ export interface ScalableRequestParam extends AbleRequestParam {
      * delta number of height
      */
     deltaHeight?: number;
+    /**
+     * whether to use with `snappable`
+     */
+    useSnap?: boolean;
 }
+
+
+
+
+/**
+ * @typedef
+ * @memberof Moveable.Rotatable
+ * @extends Moveable.AbleRequestParam
+ * @description the Rotatable's request parameter
+ */
+export interface RotatableRequestParam extends AbleRequestParam {
+    /**
+     * delta number of rotation
+     */
+    deltaRotate?: number;
+    /**
+     * absolute number of moveable's rotation
+     */
+    rotate?: number;
+}
+
+
 export interface ScalableEvents {
     onScaleStart: OnScaleStart;
     onBeforeScale: OnBeforeScale;
@@ -2156,6 +2362,15 @@ export interface RenderDirections {
      * @default false
      */
     edge?: boolean | Array<LineDirection>;
+    /**
+     * You can expand the area around the control.
+     * Either `rotateAroundControls` or `displayAroundControls` can be used.
+     * You can set the area through the `controlPadding` value.
+     * @since 0.44.0
+     * @story options--options-control-padding
+     * @default false
+     */
+    displayAroundControls?: boolean;
 }
 
 export type RotationPosition
@@ -2185,6 +2400,7 @@ export interface RotatableOptions extends RenderDirections {
     rotationPosition?: RotationPosition | RotationPosition[];
     /**
      * You can rotate around direction controls.
+     * Either `rotateAroundControls` or `displayAroundControls` can be used.
      * @default 0
      */
     rotateAroundControls?: boolean;
@@ -2272,9 +2488,13 @@ export interface GroupableOptions {
     /**
      * Sets the initial rotation of the group.
      * @default 0
-     * @deprecated
      */
     defaultGroupRotate?: number;
+    /**
+     * Use the defaultGroupRotate even if the children's rotations match.
+     * @default false
+     */
+    useDefaultGroupRotate?: boolean;
     /**
      * Sets the initial transform origin of the group.
      * @default  "50% 50%"
@@ -2322,8 +2542,18 @@ export type MoveableTargetGroupsType = Array<HTMLElement | SVGElement | Moveable
 export interface IndividualGroupableOptions {
     /**
      * Create targets individually, not as a group.
+     * @story individual-group--individual-group-draggable-scalable-rotatable
      */
     individualGroupable?: boolean;
+    /**
+     * When using individualGroupable you can pass props to child moveable.
+     * @story individual-group--individual-group-groupable-props
+     * @since 0.44.0
+     */
+    individualGroupableProps?: (
+        element: HTMLElement | SVGElement | null | undefined,
+        index: number,
+    ) => Record<string, any> | undefined | null | void;
 }
 
 export interface IndividualGroupableProps extends IndividualGroupableOptions {
@@ -2381,6 +2611,21 @@ export interface SnappableOptions {
      */
     snapDigit?: number;
     /**
+     * Whether to show guideline of snap by grid
+     * @default false
+     */
+    isDisplayGridGuidelines?: boolean;
+    /**
+     * Snap works if `abs(current rotation - snapRotationDegrees) < snapRotationThreshold`.
+     * @default 5
+     */
+    snapRotationThreshold?: number;
+    /**
+     * degree angles to snap to rotation
+     * @default []
+     */
+    snapRotationDegrees?: number[];
+    /**
      * If width size is greater than 0, you can vertical snap to the grid.
      * @default 0 (0 is not used)
      */
@@ -2404,12 +2649,12 @@ export interface SnappableOptions {
      * Add guidelines in the horizontal direction.
      * @default []
      */
-    horizontalGuidelines?: Array<PosGuideline | number>;
+    horizontalGuidelines?: Array<PosGuideline | number | string>;
     /**
      * Add guidelines in the vertical direction.
      * @default []
      */
-    verticalGuidelines?: Array<PosGuideline | number>;
+    verticalGuidelines?: Array<PosGuideline | number | string>;
     /**
      * Add guidelines for the element.
      * @default []
@@ -2548,12 +2793,19 @@ export interface PosGuideline {
     /**
      * guideline pos
      */
-    pos: number;
+    pos: number | string;
     /**
      * class names to add to guideline
      * @default ""
      */
     className?: string;
+}
+/**
+ * @typedef
+ * @memberof Moveable.Snappable
+ */
+export interface NumericPosGuideline extends PosGuideline {
+    pos: number;
 }
 /**
  * @typedef
@@ -2578,22 +2830,47 @@ export interface ElementGuidelineValue extends SnapDirections {
 }
 export interface SnappableEvents {
     onSnap: OnSnap;
+    onBound: OnBound;
 }
 export interface SnappableProps extends SnappableOptions, EventInterface<SnappableEvents> {
-    onSnap?: (e: OnSnap) => any;
 }
 
 /**
  * @typedef
  * @memberof Moveable.Snappable
- * @property - snapped verticalGuidelines, horizontalGuidelines,
- * @property - snapped elements (group by element)
- * @property - gaps is snapped guidelines that became gap snap between elements.
  */
 export interface OnSnap {
+    /**
+     * snapped verticalGuidelines, horizontalGuidelines,
+     */
     guidelines: SnapGuideline[];
+    /**
+     * snapped elements (group by element)
+     */
     elements: SnapGuideline[];
+    /**
+     * gaps is snapped guidelines that became gap snap between elements.
+     */
     gaps: SnapGuideline[];
+}
+
+/**
+ * @typedef
+ * @memberof Moveable.Snappable
+ */
+export interface OnBound {
+    bounds: {
+        left: boolean;
+        top: boolean;
+        right: boolean;
+        bottom: boolean;
+    };
+    innerBounds: {
+        left: boolean;
+        top: boolean;
+        right: boolean;
+        bottom: boolean;
+    };
 }
 /**
  * @typedef
@@ -2608,9 +2885,12 @@ export interface InnerBoundType {
 /**
  * @typedef
  * @memberof Moveable.Snappable
- * @property - If position is css, right and bottom are calculated as css right and css bottom of container. (default: "client")
  */
 export interface BoundType {
+    /**
+     * If position is css, right and bottom are calculated as css right and css bottom of container.
+     * @default "client"
+     */
     position?: "client" | "css";
     left?: number;
     top?: number;
@@ -2640,6 +2920,7 @@ export interface SnappableState {
     enableSnap: boolean;
 }
 export interface SnapRenderInfo {
+    render?: boolean;
     direction?: number[];
     snap?: boolean;
     center?: boolean;
@@ -2650,6 +2931,7 @@ export interface SnapRenderInfo {
 
 /**
  * @typedef
+ * @options
  * @memberof Moveable.Scrollable
  */
 export interface ScrollableOptions {
@@ -2660,25 +2942,46 @@ export interface ScrollableOptions {
     scrollable?: boolean;
     /**
      * The container to which scroll is applied
+     * @deprecated
      * @default container
      */
     scrollContainer?: MoveableRefType<HTMLElement>;
     /**
      * Expand the range of the scroll check area.
+     * @deprecated
      * @default 0
      */
     scrollThreshold?: number;
     /**
      * Time interval that occurs when scrolling occurs when dragging is maintained
      * If set to 0, it does not occur.
+     * @deprecated
      * @default 0
      */
     scrollThrottleTime?: number;
     /**
      * Sets a function to get the scroll position.
+     * @deprecated
      * @default scrollContainer's scrollTop, scrollLeft
      */
     getScrollPosition?: (e: { scrollContainer: HTMLElement, direction: number[] }) => number[];
+    /**
+     * Option to scroll with dragging
+     * @since 0.43.0
+     * @story support-scroll--scrolling-scrollable
+     * @example
+     * const scrollOptions = {
+     *     container: () => viewer.getContainer(),
+     *     threshold: 20,
+     *     getScrollPosition: () => {
+     *         return [
+     *             viewer.getScrollLeft({ absolute: true }),
+     *             viewer.getScrollTop({ absolute: true }),
+     *         ];
+     *     },
+     * };
+     */
+    scrollOptions?: Partial<DragScrollOptions> | null;
 }
 export interface ScrollableEvents {
     onScroll: OnScroll;
@@ -3005,6 +3308,12 @@ export interface HitRect {
     width?: number;
     height?: number;
 }
+
+/**
+ * @typedef
+ * @memberof Moveable
+ * @extends Moveable.MoveableInterface
+ */
 export interface MoveableManagerInterface<T = {}, U = {}> extends MoveableInterface {
     moveables?: MoveableManagerInterface[];
     props: MoveableManagerProps<T>;
@@ -3018,9 +3327,7 @@ export interface MoveableManagerInterface<T = {}, U = {}> extends MoveableInterf
     controlAbles: Able[];
     targetAbles: Able[];
     areaElement: HTMLElement;
-    controlBox: {
-        getElement(): HTMLElement,
-    };
+    controlBox: HTMLElement,
     isUnmounted: boolean;
     useCSS(tag: string, css: string): any;
     getContainer(): HTMLElement | SVGElement;
@@ -3028,18 +3335,38 @@ export interface MoveableManagerInterface<T = {}, U = {}> extends MoveableInterf
     getState(): MoveableManagerState<U>;
     triggerEvent(name: string, params: IObject<any>, isManager?: boolean): any;
 }
+
+/**
+ * @typedef
+ * @memberof Moveable
+ * @extends Moveable.MoveableManagerInterface
+ */
 export interface MoveableGroupInterface<T = {}, U = {}> extends MoveableManagerInterface<T, U> {
     props: MoveableManagerProps<T> & { targets: Array<HTMLElement | SVGElement> };
     moveables: MoveableManagerInterface[];
     transformOrigin: string;
     renderGroupRects: GroupRect[];
+    getRequestChildStyles(): string[];
 }
+
+/**
+ * @typedef
+ * @memberof Moveable
+ */
 export interface MoveableInterface {
     getManager(): MoveableManagerInterface<any, any>;
     getRect(): RectInfo;
     getAble<T extends Able>(ableName: string): T | undefined;
     isMoveableElement(target: Element): boolean;
+    /**
+     * If the location or size of the target is changed, call the `.updateRect()` method.
+     * Use the `useResizeObserver` and `useMutationObserver` props to update automatically.
+     */
     updateRect(type?: "Start" | "" | "End", isTarget?: boolean, isSetState?: boolean): void;
+    /**
+     * @deprecated
+     * Use `.updateRect()` method
+     */
     updateTarget(): void;
     /**
      * Request able through a method rather than an event.
@@ -3069,8 +3396,26 @@ export interface MoveableInterface {
      * requester.request({ deltaX: 10, deltaY: 10 });
      * requester.requestEnd();
      */
-    request<RequestParam extends {} = AbleRequestParam>(
-        ableName: string, params?: RequestParam, isInstant?: boolean): Requester<RequestParam>;
+    request<
+        RequestParam extends AbleRequesters[Name],
+        Name extends string = string,
+    >(ableName: Name, params?: RequestParam, isInstant?: boolean): Requester<RequestParam>;
+    /**
+     * moveable is the top level that manages targets
+     * `Single`: MoveableManager instance
+     * `Group`: MoveableGroup instance
+     * `IndividualGroup`: MoveableIndividaulGroup instance
+     * Returns leaf target MoveableManagers.
+     */
+    getMoveables(): MoveableManagerInterface[];
+    /**
+     * Returns the element of the control box.
+     */
+    getControlBoxElement(): HTMLElement;
+    /**
+     * Target element to be dragged in moveable
+     */
+    getDragElement(): HTMLElement | SVGElement | null | undefined;
     destroy(): void;
     dragStart(e: MouseEvent | TouchEvent): void;
     isInside(clientX: number, clientY: number): boolean;
@@ -3101,7 +3446,8 @@ export type UnionToIntersection<U> =
 
 // export type MoveableEventsProps = Parameters<Required<MoveableProps>[keyof typeof MOVEABLE_EVENTS_PROPS_MAP]>[0];
 export type MoveableEvents = {
-    [key in keyof typeof MOVEABLE_EVENTS_MAP]: Parameters<Required<MoveableProps>[typeof MOVEABLE_EVENTS_MAP[key]]>[0];
+    [key in typeof MOVEABLE_EVENTS[number]]
+    : Parameters<Required<MoveableProps>[`on${Capitalize<key>}`]>[0];
 };
 
 export type Writable<T> = {
@@ -3109,7 +3455,7 @@ export type Writable<T> = {
 };
 
 export type MoveableProperties = {
-    -readonly [key in keyof typeof MOVEABLE_PROPS_MAP]: MoveableProps[key];
+    -readonly [key in typeof MOVEABLE_PROPS[number]]?: MoveableProps[key];
 };
 
 export interface SnappableRenderType {

@@ -3,6 +3,7 @@ import {
     fillParams, fillEndParams, calculatePosition,
     fillCSSObject,
     catchEvent,
+    getComputedStyle,
 } from "../utils";
 import {
     Renderer, RoundableProps, OnRoundStart,
@@ -189,13 +190,20 @@ function getStyleBorderRadius(moveable: MoveableManagerInterface<RoundableProps,
     let borderRadius = style.borderRadius || "";
 
     if (!borderRadius && moveable.props.groupable) {
+        const firstMoveable = moveable.moveables![0];
         const firstTarget = moveable.getTargets()[0];
 
 
         if (firstTarget) {
-            borderRadius = getComputedStyle(firstTarget).borderRadius;
-            style.borderRadius = borderRadius;
+            if (firstMoveable?.props.target === firstTarget) {
+                borderRadius = moveable.moveables![0]?.state.style.borderRadius ?? "";
+                style.borderRadius = borderRadius;
+            } else {
+                borderRadius = getComputedStyle(firstTarget).borderRadius;
+                style.borderRadius = borderRadius;
+            }
         }
+
     }
     return borderRadius;
 }
@@ -207,39 +215,39 @@ function getStyleBorderRadius(moveable: MoveableManagerInterface<RoundableProps,
 
 export default {
     name: "roundable",
-    props: {
-        roundable: Boolean,
-        roundRelative: Boolean,
-        minRoundControls: Array,
-        maxRoundControls: Array,
-        roundClickable: Boolean,
-        roundPadding: Number,
-        isDisplayShadowRoundControls: Boolean,
-    } as const,
-    events: {
-        onRoundStart: "roundStart",
-        onRound: "round",
-        onRoundEnd: "roundEnd",
-        onRoundGroupStart: "roundGroupStart",
-        onRoundGroup: "roundGroup",
-        onRoundGroupEnd: "roundGroupEnd",
-    } as const,
+    props: [
+        "roundable",
+        "roundRelative",
+        "minRoundControls",
+        "maxRoundControls",
+        "roundClickable",
+        "roundPadding",
+        "isDisplayShadowRoundControls",
+    ] as const,
+    events: [
+        "roundStart",
+        "round",
+        "roundEnd",
+        "roundGroupStart",
+        "roundGroup",
+        "roundGroupEnd",
+    ] as const,
     css: [
         `.control.border-radius {
-    background: #d66;
-    cursor: pointer;
-    z-index: 3;
+background: #d66;
+cursor: pointer;
+z-index: 3;
 }`,
         `.control.border-radius.vertical {
-    background: #d6d;
-    z-index: 2;
+background: #d6d;
+z-index: 2;
 }`,
         `.control.border-radius.virtual {
-    opacity: 0.5;
-    z-index: 1;
+opacity: 0.5;
+z-index: 1;
 }`,
         `:host.round-line-clickable .line.direction {
-    cursor: pointer;
+cursor: pointer;
 }`,
     ],
     className(moveable: MoveableManagerInterface<RoundableProps, RoundableState>) {
@@ -248,6 +256,9 @@ export default {
         return roundClickable === true || roundClickable === "line" ? prefix("round-line-clickable") : "";
     },
     requestStyle(): Array<keyof CSSStyleDeclaration> {
+        return ["borderRadius"];
+    },
+    requestChildStyle(): Array<keyof CSSStyleDeclaration> {
         return ["borderRadius"];
     },
     render(moveable: MoveableManagerInterface<RoundableProps, RoundableState>, React: Renderer): any {
@@ -314,9 +325,11 @@ export default {
                 originalPos[0] += roundPadding;
             }
             const pos = minus(calculatePosition(allMatrix, originalPos, n), basePos);
-
+            const isDisplayVerticalShadow
+                = isDisplayShadowRoundControls
+                && isDisplayShadowRoundControls !== "horizontal";
             const isDisplay = v.vertical
-                ? verticalCount <= maxRoundControls[1] && (isDisplayShadowRoundControls || !v.virtual)
+                ? verticalCount <= maxRoundControls[1] && (isDisplayVerticalShadow || !v.virtual)
                 : horizontalCount <= maxRoundControls[0] && (isDisplayShadowRoundControls || !v.virtual);
 
             return <div key={`borderRadiusControl${i}`}

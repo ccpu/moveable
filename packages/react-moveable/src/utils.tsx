@@ -1,9 +1,15 @@
 import { PREFIX, IS_WEBKIT605, TINY_NUM } from "./consts";
-import { prefixNames, InvertObject } from "framework-utils";
+import { prefixNames } from "framework-utils";
 import {
     isUndefined, isObject, splitUnit,
     IObject, hasClass, isArray, isString, getRad,
-    getShapeDirection, isFunction, convertUnitSize, between, getKeys, decamelize,
+    isFunction, convertUnitSize, between, getKeys, decamelize, isNumber,
+    getDocumentBody,
+    getDocumentElement,
+    getWindow,
+    isNode,
+    isWindow,
+    counter,
 } from "@daybrush/utils";
 import {
     multiply, invert,
@@ -20,12 +26,14 @@ import {
     MoveableManagerState, Able, MoveableClientRect,
     MoveableProps, ArrayFormat, MoveableRefType,
     MatrixInfo, ExcludeEndParams, ExcludeParams,
-    ElementSizes, MoveablePosition, TransformObject,
-    MoveableRefTargetsResultType, MoveableRefTargetType, MoveableManagerInterface, CSSObject,
+    ElementSizes, TransformObject,
+    MoveableRefTargetsResultType, MoveableRefTargetType, MoveableManagerInterface, CSSObject, PaddingBox,
 } from "./types";
 import { parse, toMat, calculateMatrixDist, parseMat } from "css-to-mat";
 import { getBeforeRenderableDatas, getDragDist } from "./gesto/GestoUtils";
 import { getGestoData } from "./gesto/GestoData";
+import { GetStyle, getCachedStyle } from "./store/Store";
+import { normalized } from "./ables/Snappable";
 
 export function round(num: number) {
     return Math.round(num);
@@ -83,19 +91,20 @@ export function getBeforeTransformOrigin(el: SVGElement) {
         return value * measureSVGSize(el, unit, i === 0);
     });
 }
-export function getTransformOrigin(style: CSSStyleDeclaration) {
-    const transformOrigin = style.transformOrigin;
-
+export function getTransformOriginArray(transformOrigin: string) {
     return transformOrigin ? transformOrigin.split(" ") : ["0", "0"];
+}
+export function getTransformOrigin(style: CSSStyleDeclaration) {
+    return getTransformOriginArray(style.transformOrigin);
 }
 export function getElementTransform(
     target: HTMLElement | SVGElement,
-    computedStyle = getComputedStyle(target),
-) {
-    const computedTransform = computedStyle.transform;
+): string {
+    const getStyle = getCachedStyle(target);
+    const computedTransform = getStyle("transform");
 
     if (computedTransform && computedTransform !== "none") {
-        return computedStyle.transform;
+        return computedTransform;
     }
     if ("transform" in target) {
         const list = (target as any).transform as SVGAnimatedTransformList;
@@ -128,10 +137,10 @@ export function getOffsetInfo(
     lastParent: SVGElement | HTMLElement | null | undefined,
     isParent?: boolean,
     checkZoom?: boolean,
-    targetStyle?: CSSStyleDeclaration,
+    getTargetStyle?: GetStyle,
 ) {
-    const doc = el && el.ownerDocument ? el.ownerDocument : document;
-    const documentElement = doc.documentElement || doc.body;
+
+    const documentElement = getDocumentElement(el!) || getDocumentBody(el!);
     let hasSlot = false;
     let target: HTMLElement | SVGElement | null | undefined;
     let parentSlotElement: HTMLElement | null | undefined;
@@ -157,8 +166,8 @@ export function getOffsetInfo(
     let offsetZoom = 1;
 
 
-    const targetZoom = parseFloat((targetStyle as any)?.zoom) || 1;
-    const targetPosition = targetStyle?.position;
+    const targetZoom = parseFloat(getTargetStyle?.("zoom")) || 1;
+    const targetPosition = getTargetStyle?.("position");
 
 
 
@@ -166,13 +175,13 @@ export function getOffsetInfo(
         if (lastParent === target) {
             isEnd = true;
         }
-        const style = getComputedStyle(target);
+        const getStyle = getCachedStyle(target);
         const tagName = target.tagName.toLowerCase();
-        const transform = getElementTransform(target as SVGElement, style);
-        const willChange = style.willChange;
-        const zoom = parseFloat((style as any).zoom) || 1;
-        position = style.position!;
+        const transform = getElementTransform(target as SVGElement);
+        const willChange = getStyle("willChange");
+        const zoom = parseFloat(getStyle("zoom")) || 1;
 
+        position = getStyle("position");
         if (checkZoom && zoom !== 1) {
             offsetZoom = zoom;
             break;
@@ -194,14 +203,13 @@ export function getOffsetInfo(
             hasSlot = true;
             parentSlotElement = targetParentNode as HTMLElement;
         }
-        const parentNode = slotParentNode || targetParentNode;
-
+        const parentNode = targetParentNode;
 
         if (parentNode && parentNode.nodeType === 11) {
             // Shadow Root
             target = (parentNode as ShadowRoot).host as HTMLElement;
             isCustomElement = true;
-
+            position = getCachedStyle(target)("position");
             break;
         }
         target = parentNode as HTMLElement | SVGElement;
@@ -216,40 +224,44 @@ export function getOffsetInfo(
         isEnd: isEnd || !target || target === documentElement,
         offsetParent: target as HTMLElement || documentElement,
     };
-
 }
+
 export function getOffsetPosInfo(
     el: HTMLElement | SVGElement,
     target: HTMLElement | SVGElement,
-    style: CSSStyleDeclaration,
 ) {
     const tagName = el.tagName.toLowerCase();
     let offsetLeft = (el as HTMLElement).offsetLeft;
     let offsetTop = (el as HTMLElement).offsetTop;
-
+    const getStyle = getCachedStyle(el);
     // svg
     const isSVG = isUndefined(offsetLeft);
     let hasOffset = !isSVG;
     let origin: number[];
     let targetOrigin: number[];
     // inner svg element
-    if (!hasOffset && tagName !== "svg") {
+    if (!hasOffset && (tagName !== "svg" || (target as SVGElement).ownerSVGElement)) {
         origin = IS_WEBKIT605
             ? getBeforeTransformOrigin(el as SVGElement)
-            : getTransformOrigin(style).map(pos => parseFloat(pos));
+            : getTransformOriginArray(getStyle("transformOrigin")).map(pos => parseFloat(pos));
 
         targetOrigin = origin.slice();
         hasOffset = true;
 
-        [
-            offsetLeft, offsetTop, origin[0], origin[1],
-        ] = getSVGGraphicsOffset(
-            el as SVGGraphicsElement,
-            origin,
-            el === target && target.tagName.toLowerCase() === "g",
-        );
+        if (tagName === "svg") {
+            offsetLeft = 0;
+            offsetTop = 0;
+        } else {
+            [
+                offsetLeft, offsetTop, origin[0], origin[1],
+            ] = getSVGGraphicsOffset(
+                el as SVGGraphicsElement,
+                origin,
+                el === target && target.tagName.toLowerCase() === "g",
+            );
+        }
     } else {
-        origin = getTransformOrigin(style).map(pos => parseFloat(pos));
+        origin = getTransformOriginArray(getStyle("transformOrigin")).map(pos => parseFloat(pos));
         targetOrigin = origin.slice();
     }
     return {
@@ -264,22 +276,22 @@ export function getOffsetPosInfo(
 export function getBodyOffset(
     el: HTMLElement | SVGElement,
     isSVG: boolean,
-    style: CSSStyleDeclaration = getComputedStyle(el),
 ) {
-    const bodyStyle = getComputedStyle(document.body);
-    const bodyPosition = bodyStyle.position;
+    const getStyle = getCachedStyle(el);
+    const getBodyStyle = getCachedStyle(getDocumentBody(el));
+    const bodyPosition = getBodyStyle("position");
     if (!isSVG && (!bodyPosition || bodyPosition === "static")) {
         return [0, 0];
     }
 
-    let marginLeft = parseInt(bodyStyle.marginLeft, 10);
-    let marginTop = parseInt(bodyStyle.marginTop, 10);
+    let marginLeft = parseInt(getBodyStyle("marginLeft"), 10);
+    let marginTop = parseInt(getBodyStyle("marginTop"), 10);
 
-    if (style.position === "absolute") {
-        if (style.top !== "auto" || style.bottom !== "auto") {
+    if (getStyle("position") === "absolute") {
+        if (getStyle("top") !== "auto" || getStyle("bottom") !== "auto") {
             marginTop = 0;
         }
-        if (style.left !== "auto" || style.right !== "auto") {
+        if (getStyle("left") !== "auto" || getStyle("right") !== "auto") {
             marginLeft = 0;
         }
     }
@@ -296,16 +308,10 @@ export function convert3DMatrixes(matrixes: MatrixInfo[]) {
     });
 }
 
-export function getBodyScrollPos() {
-    return [
-        document.documentElement.scrollLeft || document.body.scrollLeft,
-        document.documentElement.scrollTop || document.body.scrollTop,
-    ];
-}
-
 export function getPositionFixedInfo(el: HTMLElement | SVGElement) {
     let fixedContainer = el.parentElement;
     let hasTransform = false;
+    const body = getDocumentBody(el);
 
     while (fixedContainer) {
         const transform = getComputedStyle(fixedContainer).transform;
@@ -315,14 +321,14 @@ export function getPositionFixedInfo(el: HTMLElement | SVGElement) {
             hasTransform = true;
             break;
         }
-        if (fixedContainer === document.body) {
+        if (fixedContainer === body) {
             break;
         }
         fixedContainer = fixedContainer.parentElement;
     }
 
     return {
-        fixedContainer: fixedContainer || document.body,
+        fixedContainer: fixedContainer || body,
         hasTransform,
     };
 }
@@ -406,17 +412,17 @@ export function getSVGGraphicsOffset(
     if (!el.getBBox || !isGTarget && el.tagName.toLowerCase() === "g") {
         return [0, 0, 0, 0];
     }
+    const getStyle = getCachedStyle(el);
+    const isFillBox = getStyle("transform-box") === "fill-box";
+
     const bbox = el.getBBox();
     const viewBox = getSVGViewBox(el.ownerSVGElement!);
     const left = bbox.x - viewBox.x;
     const top = bbox.y - viewBox.y;
+    const originX = isFillBox ? origin[0] : origin[0] - left;
+    const originY = isFillBox ? origin[1] : origin[1] - top;
 
-    return [
-        left,
-        top,
-        origin[0] - left,
-        origin[1] - top,
-    ];
+    return [left, top, originX, originY];
 }
 export function calculatePosition(matrix: number[], pos: number[], n: number) {
     return calculate(matrix, convertPositionMatrix(pos, n), n);
@@ -463,7 +469,7 @@ export function getSVGOffset(
     const containerClientRect = container.getBoundingClientRect();
     let margin = [0, 0];
 
-    if (container === document.body) {
+    if (container === getDocumentBody(container)) {
         margin = getBodyOffset(target, true);
     }
 
@@ -516,7 +522,7 @@ export function getSVGOffset(
         const distLeft = nextLeft - rectLeft;
         const distTop = nextTop - rectTop;
 
-        if (Math.abs(distLeft) < 2 && Math.abs(distTop) < 2) {
+        if (abs(distLeft) < 2 && abs(distTop) < 2) {
             break;
         }
         rectOrigin[0] -= distLeft;
@@ -540,55 +546,7 @@ export function calculateMoveableClientPositions(
     });
 
 }
-export function calculateMoveablePosition(
-    matrix: number[],
-    origin: number[],
-    width: number,
-    height: number,
-): MoveablePosition {
-    const is3d = matrix.length === 16;
-    const n = is3d ? 4 : 3;
-    const poses = calculatePoses(matrix, width, height, n);
-    let [
-        [x1, y1],
-        [x2, y2],
-        [x3, y3],
-        [x4, y4],
-    ] = poses;
-    let [originX, originY] = calculatePosition(matrix, origin, n);
 
-    const left = Math.min(x1, x2, x3, x4);
-    const top = Math.min(y1, y2, y3, y4);
-    const right = Math.max(x1, x2, x3, x4);
-    const bottom = Math.max(y1, y2, y3, y4);
-
-    x1 = (x1 - left) || 0;
-    x2 = (x2 - left) || 0;
-    x3 = (x3 - left) || 0;
-    x4 = (x4 - left) || 0;
-
-    y1 = (y1 - top) || 0;
-    y2 = (y2 - top) || 0;
-    y3 = (y3 - top) || 0;
-    y4 = (y4 - top) || 0;
-
-    originX = (originX - left) || 0;
-    originY = (originY - top) || 0;
-
-    const direction = getShapeDirection(calculatePoses(matrix, 100, 100, n));
-    return {
-        left,
-        top,
-        right,
-        bottom,
-        origin: [originX, originY],
-        pos1: [x1, y1],
-        pos2: [x2, y2],
-        pos3: [x3, y3],
-        pos4: [x4, y4],
-        direction,
-    };
-}
 export function getDistSize(vec: number[]) {
     return Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
 }
@@ -615,14 +573,6 @@ export function getControlTransform(rotation: number, zoom: number, ...poses: nu
         transform: `translateZ(0px) translate(${x}px, ${y}px) rotate(${rotation}rad) scale(${zoom})`,
     };
 }
-export function getCSSSize(target: SVGElement | HTMLElement) {
-    const style = getComputedStyle(target);
-
-    return [
-        parseFloat(style.width!),
-        parseFloat(style.height!),
-    ];
-}
 
 export function getProps<Props>(props: Props, ableName: keyof Props): Props {
     const self = props[ableName];
@@ -638,7 +588,6 @@ export function getProps<Props>(props: Props, ableName: keyof Props): Props {
 
 export function getSize(
     target?: SVGElement | HTMLElement | null,
-    style: CSSStyleDeclaration | null = target ? getComputedStyle(target) : null,
 ): ElementSizes {
     const hasOffset = target && !isUndefined((target as any).offsetWidth);
 
@@ -665,7 +614,8 @@ export function getSize(
     let svg = false;
 
     if (target) {
-        if (!hasOffset && target!.tagName.toLowerCase() !== "svg") {
+        if (!hasOffset && (target as SVGElement).ownerSVGElement) {
+            // check svg elements
             const bbox = (target as SVGGraphicsElement).getBBox();
 
             svg = true;
@@ -678,16 +628,18 @@ export function getSize(
             clientWidth = offsetWidth;
             clientHeight = offsetHeight;
         } else {
+            // check html elements
+            const getStyle = getCachedStyle(target);
             const targetStyle = target.style;
-            const boxSizing = style!.boxSizing === "border-box";
-            const borderLeft = parseFloat(style!.borderLeftWidth!) || 0;
-            const borderRight = parseFloat(style!.borderRightWidth!) || 0;
-            const borderTop = parseFloat(style!.borderTopWidth!) || 0;
-            const borderBottom = parseFloat(style!.borderBottomWidth!) || 0;
-            const paddingLeft = parseFloat(style!.paddingLeft!) || 0;
-            const paddingRight = parseFloat(style!.paddingRight!) || 0;
-            const paddingTop = parseFloat(style!.paddingTop!) || 0;
-            const paddingBottom = parseFloat(style!.paddingBottom!) || 0;
+            const boxSizing = getStyle("boxSizing") === "border-box";
+            const borderLeft = parseFloat(getStyle("borderLeftWidth")) || 0;
+            const borderRight = parseFloat(getStyle("borderRightWidth")) || 0;
+            const borderTop = parseFloat(getStyle("borderTopWidth")) || 0;
+            const borderBottom = parseFloat(getStyle("borderBottomWidth")) || 0;
+            const paddingLeft = parseFloat(getStyle("paddingLeft")) || 0;
+            const paddingRight = parseFloat(getStyle("paddingRight")) || 0;
+            const paddingTop = parseFloat(getStyle("paddingTop")) || 0;
+            const paddingBottom = parseFloat(getStyle("paddingBottom")) || 0;
 
             const horizontalPadding = paddingLeft + paddingRight;
             const verticalPadding = paddingTop + paddingBottom;
@@ -695,7 +647,7 @@ export function getSize(
             const verticalBorder = borderTop + borderBottom;
             const horizontalOffset = horizontalPadding + horizontalBorder;
             const verticalOffset = verticalPadding + verticalBorder;
-            const position = style!.position;
+            const position = getStyle("position");
 
             let containerWidth = 0;
             let containerHeight = 0;
@@ -705,29 +657,29 @@ export function getSize(
                 let parentElement: HTMLElement | null = null;
 
                 if (position === "absolute") {
-                    const offsetInfo = getOffsetInfo(target, document.body);
+                    const offsetInfo = getOffsetInfo(target, getDocumentBody(target));
                     parentElement = offsetInfo.offsetParent;
 
                 } else {
                     parentElement = target.parentElement;
                 }
                 if (parentElement) {
-                    const parentStyle = getComputedStyle(parentElement);
+                    const getParentStyle = getCachedStyle(parentElement);
 
-                    containerWidth = parseFloat(parentStyle.width);
-                    containerHeight = parseFloat(parentStyle.height);
+                    containerWidth = parseFloat(getParentStyle("width"));
+                    containerHeight = parseFloat(getParentStyle("height"));
                 }
             }
             minWidth = Math.max(
                 horizontalPadding,
-                convertUnitSize(style!.minWidth, containerWidth) || 0,
+                convertUnitSize(getStyle("minWidth"), containerWidth) || 0,
             );
             minHeight = Math.max(
                 verticalPadding,
-                convertUnitSize(style!.minHeight, containerHeight) || 0,
+                convertUnitSize(getStyle("minHeight"), containerHeight) || 0,
             );
-            maxWidth = convertUnitSize(style!.maxWidth, containerWidth);
-            maxHeight = convertUnitSize(style!.maxHeight, containerHeight);
+            maxWidth = convertUnitSize(getStyle("maxWidth"), containerWidth);
+            maxHeight = convertUnitSize(getStyle("maxHeight"), containerHeight);
 
             if (isNaN(maxWidth)) {
                 maxWidth = Infinity;
@@ -737,14 +689,14 @@ export function getSize(
             }
             inlineCSSWidth = convertUnitSize(targetStyle.width, 0) || 0;
             inlineCSSHeight = convertUnitSize(targetStyle.height, 0) || 0;
-            cssWidth = parseFloat(style!.width) || 0;
-            cssHeight = parseFloat(style!.height) || 0;
+            cssWidth = parseFloat(getStyle("width")) || 0;
+            cssHeight = parseFloat(getStyle("height")) || 0;
 
 
-            contentWidth = Math.abs(cssWidth - inlineCSSWidth) < 1
+            contentWidth = abs(cssWidth - inlineCSSWidth) < 1
                 ? between(minWidth, inlineCSSWidth || cssWidth, maxWidth)
                 : cssWidth;
-            contentHeight = Math.abs(cssHeight - inlineCSSHeight) < 1
+            contentHeight = abs(cssHeight - inlineCSSHeight) < 1
                 ? between(minHeight, inlineCSSHeight || cssHeight, maxHeight)
                 : cssHeight;
 
@@ -814,11 +766,14 @@ export function resetClientRect(): MoveableClientRect {
     };
 }
 
-export function getExtendsRect(el: HTMLElement | SVGElement, rect: MoveableClientRect): MoveableClientRect {
-    const isRoot = el === document.body || el === document.documentElement;
+export function getExtendsRect(
+    el: HTMLElement | SVGElement,
+    rect: MoveableClientRect,
+): MoveableClientRect {
+    const isRoot = el === getDocumentBody(el) || el === getDocumentElement(el);
 
 
-    const extendsRect =  {
+    const extendsRect = {
         clientLeft: el.clientLeft,
         clientTop: el.clientTop,
         clientWidth: el.clientWidth,
@@ -832,7 +787,8 @@ export function getExtendsRect(el: HTMLElement | SVGElement, rect: MoveableClien
         extendsRect.clientHeight = Math.max(rect.height, extendsRect.clientHeight);
         extendsRect.scrollHeight = Math.max(rect.height, extendsRect.scrollHeight);
     }
-    extendsRect.overflow = getComputedStyle(el).overflow !== "visible";
+
+    extendsRect.overflow = getCachedStyle(el)("overflow") !== "visible";
 
     return {
         ...rect,
@@ -869,7 +825,7 @@ export function getClientRectByPosition(
     }
     return rect;
 }
-export function getClientRect(el: HTMLElement | SVGElement, isExtends?: boolean) {
+export function getClientRect(el: HTMLElement | SVGElement, isExtends?: boolean): MoveableClientRect {
     let left = 0;
     let top = 0;
     let width = 0;
@@ -877,21 +833,12 @@ export function getClientRect(el: HTMLElement | SVGElement, isExtends?: boolean)
     // let isRoot = false;
 
     if (el) {
-        // isRoot = el === document.body || el === document.documentElement;
-        // if (isRoot) {
-        //     width = window.innerWidth;
-        //     height = window.innerHeight;
-        //     const scrollPos = getBodyScrollPos();
-
-        //     [left, top] = [-scrollPos[0], -scrollPos[1]];
-        // } else {
         const clientRect = el.getBoundingClientRect();
 
         left = clientRect.left;
         top = clientRect.top;
         width = clientRect.width;
         height = clientRect.height;
-        // }
     }
 
     const rect: MoveableClientRect = {
@@ -908,6 +855,28 @@ export function getClientRect(el: HTMLElement | SVGElement, isExtends?: boolean)
     }
     return rect;
 }
+
+
+export function getTotalOrigin(moveable: MoveableManagerInterface<any>) {
+    const {
+        groupable,
+        svgOrigin,
+    } = moveable.props;
+    const {
+        offsetWidth,
+        offsetHeight,
+        svg,
+        transformOrigin,
+    } = moveable.getState();
+
+    if (!groupable && svg && svgOrigin) {
+        return convertTransformOriginArray(svgOrigin, offsetWidth, offsetHeight);
+    }
+
+    return transformOrigin;
+}
+
+
 export function getTotalDirection(
     parentDirection: number[],
     isPinch: boolean,
@@ -978,9 +947,20 @@ export function roundSign(num: number) {
     return Math.round(num % 1 === -0.5 ? num - 1 : num);
 }
 
-export function unset(self: any, name: string) {
-    self[name]?.unset();
-    self[name] = null;
+export function unsetAbles(self: MoveableManagerInterface, isControl: boolean) {
+    self[isControl ? "controlAbles" : "targetAbles"].forEach(able => {
+        able.unset && able.unset(self);
+    });
+}
+export function unsetGesto(self: MoveableManagerInterface, isControl: boolean) {
+    const gestoName = isControl ? "controlGesto" : "targetGesto";
+    const gesto = self[gestoName];
+
+    if (gesto?.isIdle() === false) {
+        unsetAbles(self, isControl);
+    }
+    gesto?.unset();
+    self[gestoName] = null as any;
 }
 
 export function fillCSSObject(style: Record<string, any>, resolvedEvent?: any): CSSObject {
@@ -1036,7 +1016,10 @@ export function fillParams<T extends IObject<any>>(
         currentTarget: moveable,
         moveable,
         datas: datas.datas,
+        isRequest: e.isRequest,
+        isRequestChild: e.isRequestChild,
         isFirstDrag: !!e.isFirstDrag,
+        isTrusted: e.isTrusted !== false,
         stopAble() {
             datas.isEventStart = false;
         },
@@ -1092,12 +1075,18 @@ export function triggerEvent<EventName extends keyof Props, Props extends IObjec
     name: EventName,
     params: Props[EventName] extends ((e: infer P) => any) | undefined ? P : IObject<any>,
     isManager?: boolean,
+    isRequest?: boolean,
 ): any {
-    return moveable.triggerEvent(name, params, isManager);
+    return moveable.triggerEvent(
+        name,
+        params,
+        isManager,
+        isRequest,
+    );
 }
 
 export function getComputedStyle(el: Element, pseudoElt?: string | null) {
-    return window.getComputedStyle(el, pseudoElt);
+    return getWindow(el).getComputedStyle(el, pseudoElt);
 }
 
 export function filterAbles(
@@ -1186,12 +1175,12 @@ export function equalSign(a: number, b: number) {
 }
 
 export function maxOffset(...args: number[]) {
-    args.sort((a, b) => Math.abs(b) - Math.abs(a));
+    args.sort((a, b) => abs(b) - abs(a));
 
     return args[0];
 }
 export function minOffset(...args: number[]) {
-    args.sort((a, b) => Math.abs(a) - Math.abs(b));
+    args.sort((a, b) => abs(a) - abs(b));
 
     return args[0];
 }
@@ -1219,11 +1208,21 @@ export function convertDragDist(state: MoveableManagerState, e: any) {
 export function calculatePadding(
     matrix: number[],
     pos: number[],
-    transformOrigin: number[],
-    origin: number[],
+    added: number[],
     n: number,
 ) {
-    return minus(calculatePosition(matrix, plus(transformOrigin, pos), n), origin);
+    if (!added[0] && !added[1]) {
+        return pos;
+    }
+
+    const xAdded = calculatePosition(matrix, [normalized(added[0] || 1), 0], n);
+    const yAdded = calculatePosition(matrix, [0, normalized(added[1] || 1)], n);
+    const nextAdded = calculatePosition(matrix, [
+        added[0] / getDistSize(xAdded),
+        added[1] / getDistSize(yAdded),
+    ], n);
+
+    return plus(pos, nextAdded);
 }
 
 export function convertCSSSize(value: number, size: number, isRelative?: boolean) {
@@ -1231,7 +1230,7 @@ export function convertCSSSize(value: number, size: number, isRelative?: boolean
 }
 
 export function getTinyDist(v: number) {
-    return Math.abs(v) <= TINY_NUM ? 0 : v;
+    return abs(v) <= TINY_NUM ? 0 : v;
 }
 
 export function viewDraggingPrefix(ableName: string) {
@@ -1265,27 +1264,24 @@ export function getDirectionCondition(ableName: string, checkAbles: string[] = [
     };
 }
 
-export function invertObject<T extends IObject<any>>(obj: T): InvertObject<T> {
-    const nextObj: IObject<any> = {};
+export function convertTransformInfo(transforms: string[], state: MoveableManagerState, index: number) {
+    const matrixInfos = parse(transforms, {
+        "x%": v => v / 100 * state.offsetWidth,
+        "y%": v => v / 100 * state.offsetHeight,
+    });
 
-    for (const name in obj) {
-        nextObj[obj[name]] = name;
-    }
-    return nextObj as any;
-}
-
-export function convertTransformInfo(transforms: string[], index: number) {
     const beforeFunctionTexts = transforms.slice(0, index < 0 ? undefined : index);
     const beforeFunctionTexts2 = transforms.slice(0, index < 0 ? undefined : index + 1);
     const targetFunctionText = transforms[index] || "";
     const afterFunctionTexts = index < 0 ? [] : transforms.slice(index);
     const afterFunctionTexts2 = index < 0 ? [] : transforms.slice(index + 1);
 
-    const beforeFunctions = parse(beforeFunctionTexts);
-    const beforeFunctions2 = parse(beforeFunctionTexts2);
-    const targetFunctions = parse([targetFunctionText]);
-    const afterFunctions = parse(afterFunctionTexts);
-    const afterFunctions2 = parse(afterFunctionTexts2);
+    const beforeFunctions = matrixInfos.slice(0, index < 0 ? undefined : index);
+    const beforeFunctions2 = matrixInfos.slice(0, index < 0 ? undefined : index + 1);
+    const targetFunction = matrixInfos[index] ?? parse([""])[0];
+    const afterFunctions = index < 0 ? [] : matrixInfos.slice(index);
+    const afterFunctions2 = index < 0 ? [] : matrixInfos.slice(index + 1);
+    const targetFunctions = targetFunction ? [targetFunction] : [];
 
 
     const beforeFunctionMatrix = toMat(beforeFunctions);
@@ -1322,24 +1318,24 @@ export function isArrayFormat<T = any>(arr: any): arr is ArrayFormat<T> {
     if (!arr || !isObject(arr)) {
         return false;
     }
-    if (arr instanceof Element) {
+    if (isNode(arr)) {
         return false;
     }
     return isArray(arr) || "length" in arr;
 }
 
 export function getRefTarget<T extends Element = HTMLElement | SVGElement>(
-    target: MoveableRefType<T>, isSelector: true): T | null;
+    target: MoveableRefType<T> | Window, isSelector: true): T | null;
 export function getRefTarget<T extends Element = HTMLElement | SVGElement>(
-    target: MoveableRefType<T>, isSelector?: boolean): T | string | null;
+    target: MoveableRefType<T> | Window, isSelector?: boolean): T | string | null;
 export function getRefTarget<T extends Element = HTMLElement | SVGElement>(
-    target: MoveableRefType<T>,
+    target: MoveableRefType<T> | Window,
     isSelector?: boolean,
 ): any {
     if (!target) {
         return null;
     }
-    if (target instanceof Element) {
+    if (isNode(target)) {
         return target;
     }
     if (isString(target)) {
@@ -1350,6 +1346,9 @@ export function getRefTarget<T extends Element = HTMLElement | SVGElement>(
     }
     if (isFunction(target)) {
         return target();
+    }
+    if (isWindow(target)) {
+        return target;
     }
     if ("current" in target) {
         return target.current;
@@ -1443,14 +1442,49 @@ export function getSizeDistByDist(
             distHeight = distWidth / ratio;
         } else {
             // two-way
-            const startWidthSize = direction[0] * 2 * startOffsetWidth;
-            const startHeightSize = direction[1] * 2 * startOffsetHeight;
-            const distSize = getDistSize([startWidthSize + dist[0], startHeightSize + dist[1]])
-                - getDistSize([startWidthSize, startHeightSize]);
-            const ratioRad = getRad([0, 0], [ratio, 1]);
+            const startWidthSize = direction[0] * startOffsetWidth;
+            const startHeightSize = direction[1] * startOffsetHeight;
 
-            distWidth = Math.cos(ratioRad) * distSize;
-            distHeight = Math.sin(ratioRad) * distSize;
+            let secondRad = Math.atan2(startWidthSize + dist[0], startHeightSize + dist[1]);
+            let firstRad = Math.atan2(startWidthSize, startHeightSize);
+
+            if (secondRad < 0) {
+                secondRad += Math.PI * 2;
+            }
+            if (firstRad < 0) {
+                firstRad += Math.PI * 2;
+            }
+            let rad = 0;
+
+            if (abs(secondRad - firstRad) < Math.PI / 2 || abs(secondRad - firstRad) > Math.PI / 2 * 3) {
+                rad = secondRad - firstRad;
+            } else {
+                firstRad += Math.PI;
+                rad = secondRad - firstRad;
+            }
+            if (rad > Math.PI * 2) {
+                rad -= Math.PI * 2;
+            } else if (rad > Math.PI) {
+                rad = 2 * Math.PI - rad;
+            } else if (rad < -Math.PI) {
+                rad = -2 * Math.PI - rad;
+            }
+            //       180
+            // -1, -1,  // 1, -1
+            // 270            90
+            // -1, 1    // 1, 1
+            //       0
+            const distSize = getDistSize([startWidthSize + dist[0], startHeightSize + dist[1]]) * Math.cos(rad);
+
+            distWidth = distSize * Math.sin(firstRad) - startWidthSize;
+            distHeight = distSize * Math.cos(firstRad) - startHeightSize;
+
+            if (direction[0] < 0) {
+                distWidth *= -1;
+            }
+            if (direction[1] < 0) {
+                distHeight *= -1;
+            }
         }
     } else {
         distWidth = direction[0] * dist[0];
@@ -1475,13 +1509,14 @@ export function getOffsetSizeDist(
     const {
         distX,
         distY,
+        pinchScale,
         parentDistance,
         parentDist,
         parentScale,
     } = e;
     const startFixedDirection = datas.fixedDirection;
     const directionsDists = [0, 1].map(index => {
-        return Math.abs(sizeDirection[index] - startFixedDirection[index]);
+        return abs(sizeDirection[index] - startFixedDirection[index]);
     });
     const directionRatios = [0, 1].map(index => {
         let dist = directionsDists[index];
@@ -1502,6 +1537,9 @@ export function getOffsetSizeDist(
                 distHeight = distWidth / ratio;
             }
         }
+    } else if (isNumber(pinchScale)) {
+        distWidth = (pinchScale - 1) * startOffsetWidth;
+        distHeight = (pinchScale - 1) * startOffsetHeight;
     } else if (parentScale) {
         distWidth = (parentScale[0] - 1) * startOffsetWidth;
         distHeight = (parentScale[1] - 1) * startOffsetHeight;
@@ -1616,5 +1654,83 @@ export function rotatePosesInfo(poses: number[][], origin: number[], rad: number
         prev: prevPoses,
         next: nextPoses,
         result: nextPoses.map(pos => plus(pos, origin)),
+    };
+}
+
+
+
+export function isDeepArrayEquals(arr1: any[], arr2: any[]): boolean {
+    return arr1.length === arr2.length && arr1.every((value1, i) => {
+        const value2 = arr2[i];
+        const isArray1 = isArray(value1);
+        const isArray2 = isArray(value2);
+        if (isArray1 && isArray2) {
+            return isDeepArrayEquals(value1, value2);
+        } else if (!isArray1 && !isArray2) {
+            return value1 === value2;
+        }
+        return false;
+    });
+}
+
+
+export function watchValue<T>(
+    moveable: any,
+    property: string,
+    nextValue: T,
+    valueKey: (value: T) => string | number,
+    defaultValue?: T,
+): T {
+    const store = (moveable as any)._store;
+    let prevValue = store[property];
+
+    if (!(property in store)) {
+        if (defaultValue != null) {
+            store[property] = defaultValue;
+            prevValue = defaultValue;
+        } else {
+            store[property] = nextValue;
+            return nextValue;
+        }
+    }
+    if (prevValue === nextValue || valueKey(prevValue) === valueKey(nextValue)) {
+        return prevValue;
+    }
+
+    store[property] = nextValue;
+    return nextValue;
+}
+
+
+export function sign(value: number) {
+    return value >= 0 ? 1 : -1;
+}
+
+
+export function abs(value: number) {
+    return Math.abs(value);
+}
+
+
+export function countEach<T>(count: number, callback: (index: number) => T): T[] {
+    return counter(count).map(index => callback(index));
+}
+
+
+export function getPaddingBox(padding: PaddingBox | number) {
+    if (isNumber(padding)) {
+        return {
+            top: padding,
+            left: padding,
+            right: padding,
+            bottom: padding,
+        };
+    }
+
+    return {
+        left: padding.left || 0,
+        top: padding.top || 0,
+        right: padding.right || 0,
+        bottom: padding.bottom || 0,
     };
 }

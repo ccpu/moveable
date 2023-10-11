@@ -3,6 +3,876 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.51.2](https://github.com/daybrush/moveable/compare/0.51.1...0.51.2) (2023-09-19)
+### :sparkles: Packages
+* `croact-moveable` 0.7.2
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.28.2
+* `moveable` 0.51.2
+* `preact-moveable` 0.53.2
+* `react-moveable` 0.54.2
+* `svelte-moveable` 0.43.3
+* `vue-moveable` 2.0.0-beta.85
+* `vue3-moveable` 0.26.2
+* `ngx-moveable` 0.48.2
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `moveable`
+    * fix roundable shadow condition ([adb09b7](https://github.com/daybrush/moveable/commit/adb09b7396271e7de7031c1d621d1232f3751a9b))
+* `svelte-moveable`
+    * add svelte 4 as a compatible dependency (#1005) ([266872c](https://github.com/daybrush/moveable/commit/266872c641dce8d2a2c06e50ac972e116099285a))
+* `react-moveable`
+    * fix scrollable infinite loop #1015 ([b725981](https://github.com/daybrush/moveable/commit/b725981982ceed7914b14be8e5ee7908d5ab6e22))
+    * support transform-box: fill-box (#1012) ([7a0ed4d](https://github.com/daybrush/moveable/commit/7a0ed4d8dd5463a85298860d6924b3bd132be8a6))
+* `vue-moveable`
+    * fix vue-moveable rollup verseion #1013 ([5d81006](https://github.com/daybrush/moveable/commit/5d81006a003b4c39811263144b110eb9d960a965))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([ecf15ab](https://github.com/daybrush/moveable/commit/ecf15ab399bb4d9f6752cb84b0d6b06d15e5c426))
+* `svelte-moveable`
+    * update svelte-moveable version ([377f618](https://github.com/daybrush/moveable/commit/377f6186c9478c294a05cf830d7a0930eec0436a))
+
+
+
+## [0.51.1](https://github.com/daybrush/moveable/compare/0.51.0...0.51.1) (2023-07-11)
+### :sparkles: Packages
+* `croact-moveable` 0.7.1
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.28.1
+* `moveable` 0.51.1
+* `preact-moveable` 0.53.1
+* `react-moveable` 0.54.1
+* `svelte-moveable` 0.43.1
+* `vue-moveable` 2.0.0-beta.83
+* `vue3-moveable` 0.26.1
+* `ngx-moveable` 0.48.1
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix individual transforms for 2d #969 ([7e205f4](https://github.com/daybrush/moveable/commit/7e205f47c239993029de250d7848fc198261a5e3))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([27bda8e](https://github.com/daybrush/moveable/commit/27bda8ea3d9751847fc073519a832b3464242d3c))
+
+
+
+## [0.51.0](https://github.com/daybrush/moveable/compare/0.50.2...0.51.0) (2023-07-09)
+### :sparkles: Packages
+* `croact-moveable` 0.7.0
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.28.0
+* `moveable` 0.51.0
+* `preact-moveable` 0.53.0
+* `react-moveable` 0.54.0
+* `svelte-moveable` 0.43.0
+* `vue-moveable` 2.0.0-beta.82
+* `vue3-moveable` 0.26.0
+* `ngx-moveable` 0.48.0
+
+
+### :rocket: New Features
+
+* `react-moveable`, `moveable`
+    * add `onBound` event #970 ([c9db51f](https://github.com/daybrush/moveable/commit/c9db51f8ef5f7a0d262323e381ec25ad5bfc391d))
+* `react-moveable`
+    * add dragTargetSelf prop #972 ([4537dfe](https://github.com/daybrush/moveable/commit/4537dfea5ba1652188b026b6bffead4737c36572))
+    * add elementDirection property in guideline #949 ([1073ebc](https://github.com/daybrush/moveable/commit/1073ebcf1302259ce3c54ee744a76b1e85c88f1f))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix watchValue ([644f19c](https://github.com/daybrush/moveable/commit/644f19cb640415ee11072cfecbea4811ff2de327))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([25cae7f](https://github.com/daybrush/moveable/commit/25cae7f46aa28dcb948a8690fd6062b7e15d72ff))
+
+
+
+## [0.50.2](https://github.com/daybrush/moveable/compare/0.50.1...0.50.2) (2023-07-04)
+### :sparkles: Packages
+* `croact-moveable` 0.6.2
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.27.2
+* `moveable` 0.50.2
+* `preact-moveable` 0.52.2
+* `react-moveable` 0.53.2
+* `svelte-moveable` 0.42.2
+* `vue-moveable` 2.0.0-beta.81
+* `vue3-moveable` 0.25.2
+* `ngx-moveable` 0.47.2
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * support individual transform #969 ([1b58541](https://github.com/daybrush/moveable/commit/1b585412ea1c909bfbdcf094ecdde21024d895a0))
+    * support react18 strict mode #962 ([710f019](https://github.com/daybrush/moveable/commit/710f0190bd072804a224e715e353ff55e3427095))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([9467cf4](https://github.com/daybrush/moveable/commit/9467cf45fd2871573df8886eb134c67a8b0f916d))
+
+
+
+## [0.50.1](https://github.com/daybrush/moveable/compare/0.49.1...0.50.1) (2023-07-02)
+### :sparkles: Packages
+* `croact-moveable` 0.6.1
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.27.1
+* `moveable` 0.50.1
+* `preact-moveable` 0.52.1
+* `react-moveable` 0.53.1
+* `svelte-moveable` 0.42.1
+* `vue-moveable` 2.0.0-beta.80
+* `vue3-moveable` 0.25.1
+* `ngx-moveable` 0.47.1
+
+
+### :rocket: New Features
+
+* `react-moveable`
+    * add `getMoveables` with request #940 ([b926985](https://github.com/daybrush/moveable/commit/b92698522e1b6f20e40ba7d82560d00d3c6a6a97))
+    * support dragStart with individualGroupable #967 ([d470f64](https://github.com/daybrush/moveable/commit/d470f64a45362a8183d2f1ab572a50bc4d9f2b5e))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `moveable`
+    * fix choppy reisze #961 ([c8f9637](https://github.com/daybrush/moveable/commit/c8f9637ae319870cc6d4e9bf68eb98820f27f25e))
+    * fix group's dragTargetRef #953 ([85d17d7](https://github.com/daybrush/moveable/commit/85d17d77751d474db88b7238dd39baccd6b7a78d))
+* `react-moveable`
+    * fix translate(-50%, -50%) #963 ([6577ee9](https://github.com/daybrush/moveable/commit/6577ee9707246eb0f59e1bb685d96277f8feaa6d))
+    * individualGroupable request #967 ([daf6008](https://github.com/daybrush/moveable/commit/daf60087a82858d18ee260645e96ebb363b073de))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([5697e80](https://github.com/daybrush/moveable/commit/5697e8050f486a83ea409b856d1f670759ba6910))
+    * publish packages ([5e76998](https://github.com/daybrush/moveable/commit/5e76998ba0a90efcbb0c2e4fe8030ca47a1842d4))
+
+
+
+## [0.49.1](https://github.com/daybrush/moveable/compare/0.49.0...0.49.1) (2023-06-28)
+### :sparkles: Packages
+* `croact-moveable` 0.5.1
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.26.1
+* `moveable` 0.49.1
+* `preact-moveable` 0.51.1
+* `react-moveable` 0.52.1
+* `svelte-moveable` 0.41.1
+* `vue-moveable` 2.0.0-beta.78
+* `vue3-moveable` 0.24.1
+* `ngx-moveable` 0.46.1
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `moveable`
+    * fix dragTarget's unset #960 ([8e60b38](https://github.com/daybrush/moveable/commit/8e60b385b8931a3aab953b315618ec15f9360611))
+* `react-moveable`
+    * fix helper alias ([ee5bf0b](https://github.com/daybrush/moveable/commit/ee5bf0b958a49694e4eed111755d1ef5ba5c6dc9))
+
+
+### :memo: Documentation
+
+* update CHANGELOG.md (#959) ([145d5a3](https://github.com/daybrush/moveable/commit/145d5a3abfc2e6e1823a889eba528c77cb761afa))
+
+
+### :house: Code Refactoring
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`
+    * change rollup to vite ([213f346](https://github.com/daybrush/moveable/commit/213f346257289eaec6f3f6f618e8fba33859c384))
+* `ngx-moveable`
+    * update angular 15 version, use standalone ([226ea64](https://github.com/daybrush/moveable/commit/226ea643cb5c12315fc96e334a4bfa920f78d8aa))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`, `@moveable/helper`
+    * fix update modules ([bb608dc](https://github.com/daybrush/moveable/commit/bb608dc0d1d9eb13e538d1026c05809d89757b1d))
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([510d7cd](https://github.com/daybrush/moveable/commit/510d7cdf76eef4a17cc75d95634ebcb6d9688f8e))
+* `react-moveable`
+    * fix ts-loader version ([429ae5f](https://github.com/daybrush/moveable/commit/429ae5faa48fa9bedfc2463c1aaaebc58575bf80))
+
+
+
+## [0.49.0](https://github.com/daybrush/moveable/compare/0.48.0...0.49.0) (2023-06-25)
+### :sparkles: Packages
+* `croact-moveable` 0.5.0
+* `@moveable/helper` 0.1.3
+* `lit-moveable` 0.26.0
+* `moveable` 0.49.0
+* `preact-moveable` 0.51.0
+* `react-moveable` 0.52.0
+* `svelte-moveable` 0.41.0
+* `vue-moveable` 2.0.0-beta.77
+* `vue3-moveable` 0.24.0
+* `ngx-moveable` 0.46.0
+
+
+### :rocket: New Features
+
+* `react-moveable`
+    * add direction on snap event #949 ([69312fd](https://github.com/daybrush/moveable/commit/69312fd6eb0c3ca48f446bcc680f91abab189dfd))
+    * export matrixes in getElementInfo ([c1aad6a](https://github.com/daybrush/moveable/commit/c1aad6a0aa19c9f5060fe9d9c3277c95a0ad2c5f))
+    * setMin, setMax scale size in onScaleStart ([ea4cd95](https://github.com/daybrush/moveable/commit/ea4cd9527cd599fec9f211f0713dbccb9e2ec343))
+    * support multiple dragTarget type #953 ([4a347d2](https://github.com/daybrush/moveable/commit/4a347d2b7f36570ba882cfe7894207210650d3ec))
+    * support snappable in request #954 ([863ad42](https://github.com/daybrush/moveable/commit/863ad42876e08c0e1cea6324e241dba0d6842946))
+* `@moveable/helper`
+    * add group, ungroup in helper ([8434ed1](https://github.com/daybrush/moveable/commit/8434ed19853a158739b3e9b936d63825c6824c96))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `ngx-moveable`
+    * fix props and event types missing #941 ([bd91b08](https://github.com/daybrush/moveable/commit/bd91b08ba04a50644e3d1ed91729563260b5a01b))
+    * fix typo (degress => degrees) #928 ([835be5b](https://github.com/daybrush/moveable/commit/835be5be701c8b3740ff9dfc16101a9b9ed60cbb))
+* `react-moveable`
+    * bump react-selecto version ([c3eb9c7](https://github.com/daybrush/moveable/commit/c3eb9c7e52e7144f7accdd8298cd44e00b092d0f))
+    * fix isRequest naming ([fb90fbd](https://github.com/daybrush/moveable/commit/fb90fbddc94698cf9c88b1e9d8b54a8182f03d88))
+    * fix max scale size ([9cd9761](https://github.com/daybrush/moveable/commit/9cd9761ad109bd941ef474d7af940dbc086251a2))
+    * fix padding for scalized target #951 ([70d938f](https://github.com/daybrush/moveable/commit/70d938fe3255ae5f4cc875c9213412ad5ad09740))
+    * fix ResizeObserver, MutationObserver contexts ([71152cb](https://github.com/daybrush/moveable/commit/71152cbb055b0148ebf501d9156b9af6a542fc69))
+    * fix scalable group's negative scale dist #950 ([f4bb504](https://github.com/daybrush/moveable/commit/f4bb504d7f7f537d63f44f74a90f0cbe59886a16))
+    * support useMutationObserver in Group ([def4db3](https://github.com/daybrush/moveable/commit/def4db354db052379789cfc7e342d36f7b781699))
+* `croact-moveable`
+    * fix croact peerDependencies  #937 ([6554cc7](https://github.com/daybrush/moveable/commit/6554cc7828a5ed5f883d0f9bc35ecd913795dd84))
+* `@moveable/helper`
+    * fix helper rollup config ([c8ee6a7](https://github.com/daybrush/moveable/commit/c8ee6a7b78f7bbb4606b997d1fdae2ebc2d8ff21))
+* `ngx-moveable`
+    * **ngx-moveable:** reduce change detection cycles (#939) ([b8ff60c](https://github.com/daybrush/moveable/commit/b8ff60cfda90aac4a5420c3620f798a8a184cdb9))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([f893cca](https://github.com/daybrush/moveable/commit/f893ccaa176d31ef9ddb241d2cd4a1fb098cdae0))
+* `react-moveable`
+    * bump croffle version ([0a0cb93](https://github.com/daybrush/moveable/commit/0a0cb931bff2d4cdb7809351212f83cd59fd047c))
+
+
+
+## [0.48.0](https://github.com/daybrush/moveable/compare/0.47.9...0.48.0) (2023-06-04)
+### :sparkles: Packages
+* `croact-moveable` 0.4.0
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.25.0
+* `moveable` 0.48.0
+* `preact-moveable` 0.50.0
+* `react-moveable` 0.51.0
+* `svelte-moveable` 0.40.0
+* `vue-moveable` 2.0.0-beta.76
+* `vue3-moveable` 0.23.0
+* `ngx-moveable` 0.45.0
+
+
+### :rocket: New Features
+
+* `react-moveable`, `moveable`, `croact-moveable`
+    * support drag api #920 ([8f1a839](https://github.com/daybrush/moveable/commit/8f1a8396c429cf108da5417bc36cccd3ef46013c))
+* `react-moveable`, `ngx-moveable`
+    * add useDefaultGroupRotate prop #929 ([5846e50](https://github.com/daybrush/moveable/commit/5846e50c18dc2e1aa628e41a8d235ee4851325db))
+* `react-moveable`
+    * add hideThrottleDragRotateLine prop #923 ([e091d39](https://github.com/daybrush/moveable/commit/e091d396f2436ef0ad8d8dfa8922dcd86ec08bfd))
+    * add isDisplayGridGuidelines prop #935 ([589bb9d](https://github.com/daybrush/moveable/commit/589bb9d888b99768be153a8c0a8dc89ec3fe238a))
+    * add snapRotationThreshold, snapRotationDegress #928 ([d63283c](https://github.com/daybrush/moveable/commit/d63283c604d3aea9e4f60f8c72f64c2fa2cde0e9))
+    * add transformObject property in render events #933 ([317ddde](https://github.com/daybrush/moveable/commit/317ddde1e65a2104b0c05ec331d5f468a85fb0b8))
+* `svelte-moveable`
+    * support svelte type ([2022d49](https://github.com/daybrush/moveable/commit/2022d49ae2ebf5daaf21edb4043a557ff3f6eac5))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`, `@moveable/helper`
+    * support iframe context #932 ([3e87cc7](https://github.com/daybrush/moveable/commit/3e87cc7fed43160ca342630fed2f413876f8a518))
+* `react-moveable`, `preact-moveable`, `croact-moveable`
+    * fix ownerDocument css #932 ([76a852a](https://github.com/daybrush/moveable/commit/76a852ade3ffb41a1b246649945994f50e52b1f0))
+* `react-moveable`, `lit-moveable`, `croact-moveable`
+    * support iframe #932 ([15abedb](https://github.com/daybrush/moveable/commit/15abedb5f5770b8380d0b6ebedbc4ab7834cb9e8))
+* `react-moveable`
+    * add defense code for `.stopDrag` #930 ([be743bc](https://github.com/daybrush/moveable/commit/be743bcb1ab211a647da4d53f7d34570e25ac4be))
+    * fix bounds keepRatio sign #924 ([8ccc8fd](https://github.com/daybrush/moveable/commit/8ccc8fdfbf71079417194f1b1dbef9a797726788))
+    * fix keepRatio for zero scale #927 ([7b936ac](https://github.com/daybrush/moveable/commit/7b936ac77eb8e48d1f736e2a4dd0141946d3d968))
+    * support iframe #932 ([7b4cbad](https://github.com/daybrush/moveable/commit/7b4cbad8548e717f6ec31c14f939cbdfaffb650c))
+* `vue-moveable`
+    * fix vue prerelease ([ad7ea7c](https://github.com/daybrush/moveable/commit/ad7ea7ce85c79f6283b668228eb68358a05c4f3e))
+* `ngx-moveable`
+    * support angular 16 ([d41af9c](https://github.com/daybrush/moveable/commit/d41af9c141785c272eb4148270feb8dc11e5d46c))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * update packages ([8d65572](https://github.com/daybrush/moveable/commit/8d65572384ae0fdff288fe78fbeb5d249b070eb7))
+* `svelte-moveable`, `ngx-moveable`
+    * update packages ([9e137aa](https://github.com/daybrush/moveable/commit/9e137aa7455fdf85766ca1ff77dd3d8ea2a4c1c9))
+
+
+
+## [0.47.9](https://github.com/daybrush/moveable/compare/0.47.8...0.47.9) (2023-05-16)
+### :sparkles: Packages
+* `croact-moveable` 0.3.8
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.24.9
+* `moveable` 0.47.9
+* `preact-moveable` 0.49.7
+* `react-moveable` 0.50.7
+* `svelte-moveable` 0.39.9
+* `vue-moveable` 2.0.0-beta.75
+* `vue3-moveable` 0.22.9
+* `ngx-moveable` 0.44.9
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `preact-moveable`, `croact-moveable`
+    * fix css-styled version #916 ([875fc19](https://github.com/daybrush/moveable/commit/875fc19fa7fac50cbbb3166dfaa512b18f7c790d))
+* `react-moveable`
+    * occur unset for idle state #917 ([a9d1de8](https://github.com/daybrush/moveable/commit/a9d1de80fd7f48957fd730d577105d64c5a54fe3))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([5bd22bb](https://github.com/daybrush/moveable/commit/5bd22bb009e10a4f8032f35c2ae3b490f4d94e5b))
+
+
+
+## [0.47.8](https://github.com/daybrush/moveable/compare/0.47.7...0.47.8) (2023-05-15)
+### :sparkles: Packages
+* `croact-moveable` 0.3.7
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.24.8
+* `moveable` 0.47.8
+* `preact-moveable` 0.49.6
+* `react-moveable` 0.50.6
+* `svelte-moveable` 0.39.8
+* `vue-moveable` 2.0.0-beta.74
+* `vue3-moveable` 0.22.8
+* `ngx-moveable` 0.44.8
+
+
+### :rocket: New Features
+
+* `react-moveable`
+    * add drag api demo ([7c46df1](https://github.com/daybrush/moveable/commit/7c46df1c3026b5d836bc082e5e1dc2cdd093b77c))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `preact-moveable`, `moveable`, `croact-moveable`
+    * update croact, css-styled version #916 ([b517b64](https://github.com/daybrush/moveable/commit/b517b6498a612c072eadc9354d6383363771ea6d))
+* `react-moveable`
+    * add defense logic for added element on dragStart #917 ([ef37c3b](https://github.com/daybrush/moveable/commit/ef37c3b6775fdfc8baa365bc793fe264c5a79764))
+    * fix controlPadding  #918 ([685c459](https://github.com/daybrush/moveable/commit/685c4598deff805e0e952a1095ab3305a39a22c8))
+    * fix initial gestos ([84afabb](https://github.com/daybrush/moveable/commit/84afabb1af183a231b6b70b5b6a2904cd981706e))
+    * fix line, control padding appearing #919 ([63b9ecd](https://github.com/daybrush/moveable/commit/63b9ecd6fc83314216f1d29c57c22ded27d8098e))
+    * fix not initialized target #917 ([f291bf3](https://github.com/daybrush/moveable/commit/f291bf3f615e6daedb5da01ff16a42f43a39d441))
+    * unset gesto when target changed #917 ([9d6c0d7](https://github.com/daybrush/moveable/commit/9d6c0d7c7f4b24b936d3ea9fa996dc536c84f816))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([91aa8bc](https://github.com/daybrush/moveable/commit/91aa8bc1bdefc65cde8c032f1c7ba13ca54ad2fa))
+
+
+
+## [0.47.7](https://github.com/daybrush/moveable/compare/0.47.6...0.47.7) (2023-05-09)
+### :sparkles: Packages
+* `croact-moveable` 0.3.6
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.24.7
+* `moveable` 0.47.7
+* `preact-moveable` 0.49.5
+* `react-moveable` 0.50.5
+* `svelte-moveable` 0.39.7
+* `vue-moveable` 2.0.0-beta.73
+* `vue3-moveable` 0.22.7
+* `ngx-moveable` 0.44.7
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `moveable`
+    * fix missing type #911 ([0f26c75](https://github.com/daybrush/moveable/commit/0f26c75261fe8996f8b1317ec2da473a9feb57d0))
+* `react-moveable`
+    * fix svg group #914 ([9be5170](https://github.com/daybrush/moveable/commit/9be5170b14215bf76e29830136046cb358461f17))
+
+
+### :memo: Documentation
+
+* `react-moveable`
+    * fix README #913 ([337e36a](https://github.com/daybrush/moveable/commit/337e36a422fa1e2d5f96c0426957f6be401e8248))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([40dd902](https://github.com/daybrush/moveable/commit/40dd9022c41244ab009d621861ddc2ac63768748))
+
+
+
+## [0.47.6](https://github.com/daybrush/moveable/compare/0.47.0...0.47.6) (2023-05-08)
+### :sparkles: Packages
+* `croact-moveable` 0.3.5
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.24.6
+* `moveable` 0.47.6
+* `preact-moveable` 0.49.4
+* `react-moveable` 0.50.4
+* `svelte-moveable` 0.39.6
+* `vue-moveable` 2.0.0-beta.72
+* `vue3-moveable` 0.22.6
+* `ngx-moveable` 0.44.6
+
+
+### :rocket: New Features
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * update croact version #902 ([e328e21](https://github.com/daybrush/moveable/commit/e328e2170438fe27f60f307ae976183fbfb5e96e))
+
+
+### :bug: Bug Fix
+
+* All
+    * fix files filed #910 #909 #907 ([a4995ab](https://github.com/daybrush/moveable/commit/a4995ab1acb3a34974e1d5a20d17fb2ee17ddc0c))
+* `react-moveable`, `croact-moveable`
+    * fix dragFocusedInput #896 ([94cb92d](https://github.com/daybrush/moveable/commit/94cb92d239846ef7a45c0ea2f4ceec0ec2e3b4ac))
+* `react-moveable`
+    * add dragFcousedInput prop ([e96f9fc](https://github.com/daybrush/moveable/commit/e96f9fc80493696fdbb94047e9375a8d991da05b))
+
+
+### :memo: Documentation
+
+* `react-moveable`
+    * fix dragFcousedInput story ([2b78a4e](https://github.com/daybrush/moveable/commit/2b78a4e276000ab017396a94d1502a4c94b8ef70))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([d0f0532](https://github.com/daybrush/moveable/commit/d0f0532bfb42fe98ee95748839a639fddbe4b9d6))
+    * publish packages ([e1e86a9](https://github.com/daybrush/moveable/commit/e1e86a95ebff9d18ad7a5ebede3bd5bd66465b5d))
+    * publish packages ([60a747e](https://github.com/daybrush/moveable/commit/60a747ee3c373f83fb759a8482e2365e77dcb5e8))
+
+
+
+## [0.47.0](https://github.com/daybrush/moveable/compare/0.46.1...0.47.0) (2023-05-01)
+### :sparkles: Packages
+* `croact-moveable` 0.3.0
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.24.0
+* `moveable` 0.47.0
+* `preact-moveable` 0.49.0
+* `react-moveable` 0.50.0
+* `svelte-moveable` 0.39.0
+* `vue-moveable` 2.0.0-beta.66
+* `vue3-moveable` 0.22.0
+* `ngx-moveable` 0.44.0
+
+
+### :rocket: New Features
+
+* `react-moveable`, `croact-moveable`
+    * add dragFocusedInput prop #896 ([a29c9de](https://github.com/daybrush/moveable/commit/a29c9de3d9371a3cd7406432dcdd437168d42fdb))
+* `react-moveable`
+    * add svgOrigin prop #894 ([619d57d](https://github.com/daybrush/moveable/commit/619d57dc00c96c50fba77709526e6d3f48c0654a))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix element guidelines for group #900 ([d42c032](https://github.com/daybrush/moveable/commit/d42c0325d78150f18d07b33b6a20c02d98ee4b97))
+    * fix fixedOffset ([a00ab2a](https://github.com/daybrush/moveable/commit/a00ab2ae05b802aeb8850b4b9a87e6600f17b8fb))
+    * fix invidualGroup's mount code #905 ([d2388e5](https://github.com/daybrush/moveable/commit/d2388e54e75ae3e2de5896b8f7018b4e2a5a0963))
+    * fix snapGrid's offset #897 ([97d89de](https://github.com/daybrush/moveable/commit/97d89de0ee14ecc7d4f9b8d1c750fbb5db91730e))
+    * prevent multitouch for target and control #898 ([0b4d328](https://github.com/daybrush/moveable/commit/0b4d3287de5da268132fdcd0bf0781a3f8d0902f))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([24934e3](https://github.com/daybrush/moveable/commit/24934e317de2e5ff622bd9ab0dec8d75a7c05c48))
+* `moveable`, `croact-moveable`
+    * update croact 1.0.1 #902 ([34433f3](https://github.com/daybrush/moveable/commit/34433f3ab1266fff29f1f74bf6a5176d238348b6))
+
+
+
+## [0.46.1](https://github.com/daybrush/moveable/compare/0.46.0...0.46.1) (2023-04-16)
+### :sparkles: Packages
+* `croact-moveable` 0.2.1
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.23.1
+* `moveable` 0.46.1
+* `preact-moveable` 0.48.1
+* `react-moveable` 0.49.2
+* `svelte-moveable` 0.38.1
+* `vue-moveable` 2.0.0-beta.65
+* `vue3-moveable` 0.21.1
+* `ngx-moveable` 0.43.1
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `croact-moveable`
+    * fix pinchable's operation #892 ([f4d8df3](https://github.com/daybrush/moveable/commit/f4d8df3f81f69f0c00e2b865e6f3368ee9795b01))
+* `react-moveable`
+    * fix 0.2 guideline offset delta  #888 ([d85c041](https://github.com/daybrush/moveable/commit/d85c0414d55e08b3669e3f88bb10c301cc99c59c))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([a623eda](https://github.com/daybrush/moveable/commit/a623eda2702067397159742dd0c6ed16b99bbe22))
+
+
+
+## [0.46.0](https://github.com/daybrush/moveable/compare/0.45.0...0.46.0) (2023-04-13)
+### :sparkles: Packages
+* `croact-moveable` 0.2.0
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.23.0
+* `moveable` 0.46.0
+* `preact-moveable` 0.48.0
+* `react-moveable` 0.49.0
+* `svelte-moveable` 0.38.0
+* `vue-moveable` 2.0.0-beta.64
+* `vue3-moveable` 0.21.0
+* `ngx-moveable` 0.43.0
+
+
+### :rocket: New Features
+
+* `react-moveable`, `preact-moveable`, `moveable`, `croact-moveable`
+    * add croact ([b94c41c](https://github.com/daybrush/moveable/commit/b94c41c50cdf37da0136bd4d04f2237529253f45))
+    * add croact compat ([233c6d0](https://github.com/daybrush/moveable/commit/233c6d0a905953b51c3fd5df1f7c58e7b1d03432))
+* `react-moveable`
+    * add string guideline pos #884 ([2036328](https://github.com/daybrush/moveable/commit/20363284f0ab6b7a38c042283cd55e7cbc528809))
+    * support scale css property #891 ([28c4226](https://github.com/daybrush/moveable/commit/28c4226e9566067c14399a59d728babf692fcfc8))
+
+
+### :bug: Bug Fix
+
+* `vue-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `@moveable/helper`
+    * fix warpSelf ([8c86a3f](https://github.com/daybrush/moveable/commit/8c86a3f95e5d0b8832b1d9b65bf72f598eb8d0cb))
+* `react-moveable`
+    * fix delta offset for element guidelines #888 ([526bec1](https://github.com/daybrush/moveable/commit/526bec100ab5b45a61a88a50fa2931cf7c2841a2))
+    * fix github workflow ([0fd81b8](https://github.com/daybrush/moveable/commit/0fd81b8e43dca21086c9f00a5c3a9ac13eabf410))
+    * fix Scalable's keepRatio calculation #887 ([680c161](https://github.com/daybrush/moveable/commit/680c16181791b4764e7c31a14684c83575f8ab6b))
+    * fix vertical guidelines ([1abcc37](https://github.com/daybrush/moveable/commit/1abcc3785caf0db184649508eb63f14bde7291c4))
+    * resolve transform matrix ([090e1b2](https://github.com/daybrush/moveable/commit/090e1b26c1e2d9ff742c50f9e8e901378e5969f9))
+* `svelte-moveable`
+    * fix svelte main field #886 ([e5a5f25](https://github.com/daybrush/moveable/commit/e5a5f254e3d053f7f26d46cffeac970b98636b01))
+* `vue3-moveable`
+    * fix vue3 type ([d980b35](https://github.com/daybrush/moveable/commit/d980b3579572d150b27736e81ca7ba2580ee0a8a))
+* Other
+    * fix cache ([b9b9446](https://github.com/daybrush/moveable/commit/b9b9446be66fba48a142489fbe500613cb528570))
+    * fix github cache workflow ([b0357d7](https://github.com/daybrush/moveable/commit/b0357d7044003522ddfe90cd2b1145300040610c))
+    * fix github workflow ([78918ad](https://github.com/daybrush/moveable/commit/78918adc54ae9c8f4c5f03af1955132e2dc4c4f6))
+    * fix github workflow ([8bc059e](https://github.com/daybrush/moveable/commit/8bc059e68086132f1d0dea659de3ebc39caa6b87))
+    * fix github workflow ([ee8a78b](https://github.com/daybrush/moveable/commit/ee8a78b7faaff1c3e1007dba99f2340e62738513))
+    * fix playwright cache ([d132c57](https://github.com/daybrush/moveable/commit/d132c57db65612f3c7bb990805a3197043c8ba95))
+    * fix typo ([ca36eda](https://github.com/daybrush/moveable/commit/ca36eda8289bda7b7d3201746db50a120c6aafa2))
+    * fix workflow ([a0de6d9](https://github.com/daybrush/moveable/commit/a0de6d9fce6c6c1f9711709a642cc718860717cc))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`, `croact-moveable`
+    * publish packages ([1177427](https://github.com/daybrush/moveable/commit/11774277bafd9c60e9cef3c9a6fa38a3e1c4077d))
+
+
+
+## [0.45.0](https://github.com/daybrush/moveable/compare/0.44.4...0.45.0) (2023-03-26)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.22.0
+* `moveable` 0.45.0
+* `preact-moveable` 0.47.0
+* `react-compat-moveable` 0.33.0
+* `react-moveable` 0.48.0
+* `svelte-moveable` 0.37.0
+* `vue-moveable` 2.0.0-beta.63
+* `vue3-moveable` 0.20.0
+* `ngx-moveable` 0.42.0
+
+
+### :rocket: New Features
+
+* `react-moveable`
+    * add useMutationObserver prop #869 ([f3a9ee4](https://github.com/daybrush/moveable/commit/f3a9ee46144bfe0e0be37b7c8a086d70a9ffb5db))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix individualGroupable #867 ([6d98f76](https://github.com/daybrush/moveable/commit/6d98f76bdb3bdc94ce99495c5729ebb706038e6c))
+
+
+### :memo: Documentation
+
+* `react-moveable`
+    * fix container docs ([295d905](https://github.com/daybrush/moveable/commit/295d905cac0db04b6fa9301573c99ce1366a16ae))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([7580d27](https://github.com/daybrush/moveable/commit/7580d272fe857aadfbdbc9df264e0a413dd56588))
+
+
+
+## [0.44.4](https://github.com/daybrush/moveable/compare/0.44.3...0.44.4) (2023-03-21)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.21.4
+* `moveable` 0.44.4
+* `preact-moveable` 0.46.3
+* `react-compat-moveable` 0.32.4
+* `react-moveable` 0.47.3
+* `svelte-moveable` 0.36.4
+* `vue-moveable` 2.0.0-beta.62
+* `vue3-moveable` 0.19.4
+* `ngx-moveable` 0.41.4
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix infinite loop (#873) ([179f950](https://github.com/daybrush/moveable/commit/179f95047d1aeae8d7bb2275ea0ab980feded486))
+* `lit-moveable`
+    * update lit version ([32db849](https://github.com/daybrush/moveable/commit/32db8497e3548daa4226aa56aae4e051ab2884b3))
+
+
+### :memo: Documentation
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`
+    * fix README ([7426492](https://github.com/daybrush/moveable/commit/7426492de210ab6f38d411d96e6d843d7423f555))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([ae54ef4](https://github.com/daybrush/moveable/commit/ae54ef4c660ae789867e4286990f234cc808a379))
+* Other
+    * fix github workflow build step ([3a70df4](https://github.com/daybrush/moveable/commit/3a70df4367b87166fd51345255490b09cc64373b))
+    * fix github workflows ([faf0a40](https://github.com/daybrush/moveable/commit/faf0a40ba74316e4515a8a69c6bef84947e2696a))
+
+
+
+## [0.44.3](https://github.com/daybrush/moveable/compare/0.44.2...0.44.3) (2023-03-14)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.21.3
+* `moveable` 0.44.3
+* `preact-moveable` 0.46.2
+* `react-compat-moveable` 0.32.3
+* `react-moveable` 0.47.2
+* `svelte-moveable` 0.36.3
+* `vue-moveable` 2.0.0-beta.61
+* `vue3-moveable` 0.19.3
+* `ngx-moveable` 0.41.3
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix chromium agent (#864) ([04ffe64](https://github.com/daybrush/moveable/commit/04ffe641c5383e2c992c06196d454967bdbd1e8a))
+    * fix groupable moveables' calculation ([cd9970e](https://github.com/daybrush/moveable/commit/cd9970e9a9bf3d942bc76182e40121399346894e))
+
+
+### :memo: Documentation
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`
+    * fix story url ([8977306](https://github.com/daybrush/moveable/commit/897730620480d8e830c4b53401a28d03b42b9a5f))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * update packages ([5b03d09](https://github.com/daybrush/moveable/commit/5b03d09a0cd298d47597fc8c8c9c6fdd4cd5a267))
+* `react-moveable`
+    * fix ga id ([b034af5](https://github.com/daybrush/moveable/commit/b034af5f04d45c9ff3035451265773cac1334222))
+    * fix test  runner config ([6f6e585](https://github.com/daybrush/moveable/commit/6f6e5856773bccfb681dade0a2297e59338b8787))
+* Other
+    * fix github actions workflow ([fd9b213](https://github.com/daybrush/moveable/commit/fd9b213c7bdc0a9c36db4ccd47b7b038f9718cb4))
+
+
+
+## [0.44.2](https://github.com/daybrush/moveable/compare/0.44.0...0.44.2) (2023-03-10)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.21.2
+* `moveable` 0.44.2
+* `preact-moveable` 0.46.1
+* `react-compat-moveable` 0.32.2
+* `react-moveable` 0.47.1
+* `svelte-moveable` 0.36.2
+* `vue-moveable` 2.0.0-beta.60
+* `vue3-moveable` 0.19.2
+* `ngx-moveable` 0.41.2
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * fix chromium agent #847 ([f6a703b](https://github.com/daybrush/moveable/commit/f6a703b8286b25ec88e397f3363db6c69777fd72))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([5589402](https://github.com/daybrush/moveable/commit/55894029a463f96a1f42827330b092be3fb63bf2))
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-compat-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * update packages #856 #847 ([a78c8e3](https://github.com/daybrush/moveable/commit/a78c8e3c7ff8c3eb347a7617ddc76c807b57633e))
+
+
+
+## [0.44.0](https://github.com/daybrush/moveable/compare/0.43.1...0.44.0) (2023-03-08)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.21.0
+* `moveable` 0.44.0
+* `preact-moveable` 0.46.0
+* `react-compat-moveable` 0.32.0
+* `react-moveable` 0.47.0
+* `svelte-moveable` 0.36.0
+* `vue-moveable` 2.0.0-beta.58
+* `vue3-moveable` 0.19.0
+* `ngx-moveable` 0.41.0
+
+
+### :rocket: New Features
+
+* `react-moveable`
+    * add `preventDefault` prop #821 ([b599e32](https://github.com/daybrush/moveable/commit/b599e32aee6f3dfe10fec348c200bb1b4a0983d2))
+    * add displayAroundControls, controlPadding #837 ([9ee0c72](https://github.com/daybrush/moveable/commit/9ee0c7251daae929e5ec71a9cd5c61a473c44496))
+    * add individualGroupableProps props #848 ([079e752](https://github.com/daybrush/moveable/commit/079e75261de5cf8163ced482e1f7171ae8705823))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`
+    * custom element offset with chrome 109 or higher #847 ([af20f7e](https://github.com/daybrush/moveable/commit/af20f7e04a692e192bb6b27e4478c9d0cb0cfd29))
+    * fix requestStyle #856 ([88c9ec2](https://github.com/daybrush/moveable/commit/88c9ec2ce2b06e592f6548af2221989b7109456d))
+    * fix zoomed font size #855 ([172f6d4](https://github.com/daybrush/moveable/commit/172f6d448e9c855e8aaeefb0b83516548d127e83))
+
+
+### :memo: Documentation
+
+* `react-moveable`
+    * fix story tag ([706c41c](https://github.com/daybrush/moveable/commit/706c41c9bd44378e4c3571661d4a90d4b12ab3af))
+* Other
+    * fix README with vue3 link (#861) ([bc193ba](https://github.com/daybrush/moveable/commit/bc193bab557ce7c98c2bf8730a10a1f506701661))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([645e290](https://github.com/daybrush/moveable/commit/645e290a53b477b468042e05447e2f8f8aea6ed0))
+* `react-moveable`
+    * update croffle ([9017260](https://github.com/daybrush/moveable/commit/901726035ba4122e048cdd1d0a0d3806c3c4809a))
+
+
+
+## [0.43.1](https://github.com/daybrush/moveable/compare/0.42.2...0.43.1) (2023-01-29)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.2
+* `lit-moveable` 0.20.1
+* `moveable` 0.43.1
+* `preact-moveable` 0.45.1
+* `react-compat-moveable` 0.31.1
+* `react-moveable` 0.46.1
+* `svelte-moveable` 0.35.1
+* `vue-moveable` 2.0.0-beta.57
+* `vue3-moveable` 0.18.1
+* `ngx-moveable` 0.40.1
+
+
+### :rocket: New Features
+
+* `react-moveable`, `react-compat-moveable`
+    * add isTrusted event property ([256c40c](https://github.com/daybrush/moveable/commit/256c40cf2a51277af5414a9bab07be321a586157))
+    * add scrollOptions #841 ([a6dfc21](https://github.com/daybrush/moveable/commit/a6dfc2152ef9a06c6714c219b3ea057f0b6b8504))
+* `react-moveable`
+    * add `linePadding` prop #837 ([af818ab](https://github.com/daybrush/moveable/commit/af818abc467608e76f8bb15175b184fa440fddfb))
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `@moveable/helper`
+    * fix TargetList ([008116c](https://github.com/daybrush/moveable/commit/008116cd0b6624b95c179a6eeed3e897de6e488c))
+* `react-moveable`
+    * fix changed defaultGroupOrigin ([8d0ed9b](https://github.com/daybrush/moveable/commit/8d0ed9b85c44091f65e1f4f233ce56ea91dbf10f))
+    * support able requester types ([c26e5a9](https://github.com/daybrush/moveable/commit/c26e5a94ca27b6b1739d3e6bf5d2882d22e06e3a))
+* `@moveable/helper`
+    * fix selectCompletedChilds ([1274030](https://github.com/daybrush/moveable/commit/127403091afe221411dd8c2fa4ba072638bf0688))
+
+
+### :memo: Documentation
+
+* fix typo (#820) ([1267b45](https://github.com/daybrush/moveable/commit/1267b451731c5e8d5018986f9f862432e4beb179))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([24c9567](https://github.com/daybrush/moveable/commit/24c9567e2ec00392d2d445298031c39de0331eae))
+    * publish packages ([0e0a03d](https://github.com/daybrush/moveable/commit/0e0a03dd6c234ded050db8206e585c5fa2da1848))
+
+
+
+## [0.42.2](https://github.com/daybrush/moveable/compare/0.42.1...0.42.2) (2022-12-16)
+### :sparkles: Packages
+* `@moveable/helper` 0.1.0
+* `lit-moveable` 0.19.1
+* `moveable` 0.42.2
+* `preact-moveable` 0.44.1
+* `react-compat-moveable` 0.30.2
+* `react-moveable` 0.45.1
+* `svelte-moveable` 0.34.1
+* `vue-moveable` 2.0.0-beta.55
+* `vue3-moveable` 0.17.1
+* `ngx-moveable` 0.39.1
+
+
+### :bug: Bug Fix
+
+* `react-moveable`, `@moveable/helper`
+    * fix helper's methods ([4bc6ef5](https://github.com/daybrush/moveable/commit/4bc6ef511f7652966e1a87cd7d0a53e6687a1707))
+* `react-moveable`
+    * fix snap rendering for first drag #810 ([170eaec](https://github.com/daybrush/moveable/commit/170eaeccb43ce051f34661a337fb7870e3e8b5d9))
+    * fix targetGroups' compare condition ([21622f2](https://github.com/daybrush/moveable/commit/21622f2f25d912f69b70ba5193b909bf7244db80))
+    * fix targetGroups' compare condition ([959a9f0](https://github.com/daybrush/moveable/commit/959a9f0abd3fa592aa7645096efc3df95477494a))
+
+
+### :mega: Other
+
+* `vue3-moveable`, `vue-moveable`, `svelte-moveable`, `react-moveable`, `react-compat-moveable`, `preact-moveable`, `ngx-moveable`, `moveable`, `lit-moveable`
+    * publish packages ([d088ad9](https://github.com/daybrush/moveable/commit/d088ad9ed64889f4fd6143b89410f5d5e372105f))
+
+
+
 ## [0.42.1](https://github.com/daybrush/moveable/compare/0.41.1...0.42.1) (2022-12-10)
 ### :sparkles: Packages
 * `@moveable/helper` 0.0.4

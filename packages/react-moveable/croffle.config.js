@@ -1,14 +1,70 @@
 const {
     ReactCroissant,
     VueWaffle,
-    ConvertDefaultModulePrefixSirup,
+    DefaultModulePrefixSirup,
+    ModuleSirupFactory,
+    TemplateSirupFactory,
     SvelteWaffle,
+    ScriptWaffle,
+    ScriptComponentSirupFactory,
+    createInlineNewExpression,
+    factory,
+    AngularWaffle,
+    LitWaffle,
+    transform,
+    copyJsxAttribute,
+    copyJsxElement,
 } = require("croffle");
+const {
+    cleanPaths,
+} = require("@croffle/bakery");
+const {
+    decamelize,
+} = require("@daybrush/utils");
+const ts = require("typescript");
+
+cleanPaths("stories/**/+([0-9A-Za-z])-*/{script,vue2,vue3,svelte,angular,lit}/");
 
 
-/**
- * @param {import("croffle").Sirup} sirup
- */
+const scriptMoveableScriptComponentSirup = ScriptComponentSirupFactory({
+    path: ["moveable", "default"],
+    isContainerInstance: true,
+});
+
+const scriptSelectoComponentSirup = ScriptComponentSirupFactory({
+    path: ["selecto", "default"],
+    instance(node) {
+        const args = node.arguments;
+        const elementNode = args[0];
+        const optionsNode = args[1];
+
+        return createInlineNewExpression(
+            node.expression,
+            [factory.createObjectLiteralExpression([
+                factory.createPropertyAssignment("container", elementNode),
+                ...optionsNode.properties,
+            ])],
+        );
+    },
+});
+
+const ngxModuleSirup = ModuleSirupFactory(
+    {
+        module: /ngx-/g,
+        name: "default",
+    },
+    {
+        module: module => module,
+        name: (_, binding) => `Ngx${binding}Component`,
+    },
+);
+
+const ngxTemplateSirup = TemplateSirupFactory(
+    /^Ngx(.+)Component$/g,
+    text => decamelize(text.replace(/^Ngx/g, "ngx").replace(/Component$/g, ""), "-"),
+);
+
+
 function vueKeyconSirup(sirup) {
     sirup.requestId({
         path: [/vue[3]?-keycon/g, "useKeycon"],
@@ -18,9 +74,6 @@ function vueKeyconSirup(sirup) {
         return sirup.utils.createInlinePropertyAccess(node, "value");
     });
 }
-/**
- * @param {import("croffle").Sirup} sirup
- */
 function svelteKeyconSirup(sirup){
     sirup.requestId({
         path: [/svelte-keycon/g, "useKeycon"],
@@ -30,6 +83,46 @@ function svelteKeyconSirup(sirup){
         return sirup.ts.factory.createIdentifier(`$${node.name.escapedText}`);
     });
 }
+
+
+const litTemplateAttributeSirup = sirup => {
+    sirup.requestTemplate({
+        module: /lit-moveable|lit-selecto/g,
+        name: "default",
+    }, info => {
+        const nextOpeningElement = transform(info.openingElement, node => {
+            if (!ts.isJsxAttribute(node)) {
+                return;
+            }
+            const attrName = node.name.escapedText;
+
+            if (attrName.match(/^on[A-Z]/g)) {
+                return copyJsxAttribute(node, {
+                    name: factory.createIdentifier(attrName.replace("on", "onLit")),
+                });
+            } else if (attrName === "draggable") {
+                return copyJsxAttribute(node, {
+                    name: factory.createIdentifier("litDraggable"),
+                });
+            }
+        });
+
+        const node = info.node;
+        if (ts.isJsxElement(node)) {
+            return copyJsxElement(node, {
+                openingElement: nextOpeningElement,
+            });
+        } else {
+            return nextOpeningElement;
+        }
+    });
+};
+
+const litTemplateSirup = TemplateSirupFactory(
+    { module: /lit-/g, name: "default" },
+    tagName => `lit-${decamelize(tagName).toLowerCase()}`,
+);
+
 
 /**
  * @param {import("croffle").Sirup} sirup
@@ -72,7 +165,7 @@ function PreviewPropsSirup(sirup) {
             },
         );
     });
-};
+}
 
 /**
  * @type {import("@croffle/bakery").CroffleConfig[]}
@@ -80,23 +173,48 @@ function PreviewPropsSirup(sirup) {
 const config = [
     {
         targets: "stories/**/+([0-9A-Za-z])-*/React*App.tsx",
+        // targets: "stories/1-Basic/**/React*App.tsx",
         croissant: () => {
             const croissant = new ReactCroissant();
 
             croissant.addSirup(PreviewPropsSirup);
             croissant.addSirup(sirup => {
                 sirup.convertImport("@/react-moveable", "react-moveable");
+                sirup.convertImport("@/helper", "@moveable/helper");
             });
-            croissant.addSirup(ConvertDefaultModulePrefixSirup);
+            croissant.addSirup(DefaultModulePrefixSirup);
             return croissant;
         },
+        defrosted: (defrosted, croissant) => {
+            const app = defrosted.app;
+            const results = croissant.findUsedSpecifiers(app, "react-dom", "createPortal");
+
+            return !results.length;
+        },
         waffle: [
+            // Vanilla
+            (defrosted) => {
+                const hasKeycon = !!defrosted.allRequires["react-keycon"];
+
+                if (hasKeycon) {
+                    return;
+                }
+                const waffle = new ScriptWaffle();
+
+                waffle.addSirup(
+                    scriptMoveableScriptComponentSirup,
+                    scriptSelectoComponentSirup,
+                );
+
+                return {
+                    dist: `./{type}/{name}/App{ext}`,
+                    waffle,
+                };
+            },
             // Vue 3
             (defrosted) => {
                 const hasKeycon = !!defrosted.allRequires["react-keycon"];
                 const waffle = new VueWaffle();
-
-                waffle.addSirup(ConvertDefaultModulePrefixSirup);
 
 
                 if (hasKeycon) {
@@ -120,8 +238,6 @@ const config = [
                     useOptionsAPI: !hasKeycon,
                 });
 
-                waffle.addSirup(ConvertDefaultModulePrefixSirup);
-
                 if (hasKeycon) {
                     waffle.addSirup(
                         sirup => {
@@ -140,11 +256,49 @@ const config = [
                 const hasKeycon = !!defrosted.allRequires["react-keycon"];
                 const waffle = new SvelteWaffle();
 
-                waffle.addSirup(ConvertDefaultModulePrefixSirup);
-
                 if (hasKeycon) {
                     waffle.addSirup(svelteKeyconSirup);
                 }
+                return {
+                    dist: `./{type}/{name}/App{ext}`,
+                    waffle,
+                };
+            },
+            // Angular
+            (defrosted) => {
+                const hasKeycon = !!defrosted.allRequires["react-keycon"];
+
+                if (hasKeycon) {
+                    return;
+                }
+                const waffle = new AngularWaffle({
+                    useTemplateUrl: true,
+                });
+
+                waffle.addSirup(
+                    ngxModuleSirup,
+                    ngxTemplateSirup,
+                );
+
+                return {
+                    dist: `./{type}/{name}/App{ext}`,
+                    waffle,
+                };
+            },
+            // Lit
+            (defrosted) => {
+                const hasKeycon = !!defrosted.allRequires["react-keycon"];
+
+                if (hasKeycon) {
+                    return;
+                }
+                const waffle = new LitWaffle();
+
+                waffle.addSirup(
+                    litTemplateAttributeSirup,
+                    litTemplateSirup,
+                );
+
                 return {
                     dist: `./{type}/{name}/App{ext}`,
                     waffle,

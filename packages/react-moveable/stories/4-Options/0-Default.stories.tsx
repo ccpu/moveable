@@ -1,64 +1,167 @@
+import { expect } from "@storybook/jest";
 
-import { makeStoryGroup } from "../utils/story";
+import { makeArgType, makeOptionLink } from "../utils";
+import { add } from "../utils/story";
+import "../templates/default.css";
+import { pan, wait } from "../utils/testing";
 
+export default {
+    title: "Options",
+};
 
-const group = makeStoryGroup("Options", module);
-
-
-group.add("useResizeObserver", {
+export const OptionsResizeObserver = add("useResizeObserver", {
     app: require("./ReactUseResizeObserverApp").default,
     path: require.resolve("./ReactUseResizeObserverApp"),
 });
 
-group.add("useResizeObserver (Group)", {
+export const OptionsResizeObserverGroup = add("useResizeObserver (Group)", {
     app: require("./ReactUseResizeObserverGroupApp").default,
     path: require.resolve("./ReactUseResizeObserverGroupApp"),
 });
 
-group.add("useResizeObserver (Individual Group)", {
+export const OptionsResizeObserverIndividualGroup = add("useResizeObserver (Individual Group)", {
     app: require("./ReactUseResizeObserverIndividualGroupApp").default,
     path: require.resolve("./ReactUseResizeObserverIndividualGroupApp"),
 });
 
+export const OptionsMutationObserver = add("useMutationObserver", {
+    app: require("./ReactUseMutationObserverApp").default,
+    path: require.resolve("./ReactUseMutationObserverApp"),
+});
 
-group.add("checkInput", {
+
+export const OptionsPadding = add("padding", {
+    app: require("./ReactPaddingApp").default,
+    path: require.resolve("./ReactPaddingApp"),
+    play: async ({ canvasElement }) => {
+        await wait();
+
+        // se direction control
+        const seControl = canvasElement.querySelector<HTMLElement>(`.moveable-se`)!;
+
+        await pan({
+            target: seControl,
+            start: [0, 0],
+            end: [100, 50],
+            duration: 100,
+            interval: 10,
+        });
+        // width 100 + padding (10 + 20) 130 => 230
+        // height 100 + padding (30 + 40) 170 => 220
+
+
+        const paddingAreas = canvasElement.querySelectorAll<HTMLElement>(`.moveable-padding`);
+        const widthLine = canvasElement.querySelector<HTMLElement>(`[data-line-key="render-line-0"]`)!;
+        const heightLine = canvasElement.querySelector<HTMLElement>(`[data-line-key="render-line-1"]`)!;
+
+        expect(Math.round(parseFloat(widthLine.style.width))).toBe(230);
+        expect(Math.round(parseFloat(heightLine.style.width))).toBe(220);
+
+        // left
+        expect(Math.round(paddingAreas[0].getBoundingClientRect().width)).toBe(10);
+        // top
+        expect(Math.round(paddingAreas[1].getBoundingClientRect().height)).toBe(30);
+        // right
+        expect(Math.round(paddingAreas[2].getBoundingClientRect().width)).toBe(20);
+        // bottom
+        expect(Math.round(paddingAreas[3].getBoundingClientRect().height)).toBe(40);
+        // expect(canvasElement.querySelector(`[data-line-key="render-line-0"]`)
+    },
+});
+
+export const OptionsLinePadding = add("linePadding", {
+    app: require("./ReactLinePaddingApp").default,
+    path: require.resolve("./ReactLinePaddingApp"),
+    argsTypes: {
+        linePadding: makeArgType({
+            type: "number",
+            description: makeOptionLink("Moveable", "DefaultOptions", "linePadding"),
+            defaultValue: 0,
+            value: 10,
+        }),
+    },
+});
+
+export const OptionsControlPadding = add("controlPadding", {
+    app: require("./ReactControlPaddingApp").default,
+    path: require.resolve("./ReactControlPaddingApp"),
+    argsTypes: {
+        controlPadding: makeArgType({
+            type: "number",
+            description: makeOptionLink("Moveable", "DefaultOptions", "controlPadding"),
+            defaultValue: 0,
+            value: 20,
+        }),
+    },
+});
+
+
+export const OptionsCheckInput = add("checkInput", {
     app: require("./ReactCheckInputApp").default,
     path: require.resolve("./ReactCheckInputApp"),
 });
 
-group.add("viewContainer (Cursor is applied in viewer during dragging)", {
+
+export const OptionsDragFocusedInput = add("dragFocusedInput", {
+    app: require("./ReactDragFocusedInputApp").default,
+    path: require.resolve("./ReactDragFocusedInputApp"),
+});
+
+
+export const OptionsViewContainer = add("viewContainer (Cursor is applied in viewer during dragging)", {
     app: require("./ReactViewContainerApp").default,
     path: require.resolve("./ReactViewContainerApp"),
 });
 
 
 
-group.add("persistData (First render with persisted data)", {
+export const OptionsPersistData = add("persistData (First render with persisted data)", {
     app: require("./ReactPersistDataApp").default,
     path: require.resolve("./ReactPersistDataApp"),
 });
 
-group.add("persistData (First render with persisted data, group)", {
+export const OptionsPersistDataGroup = add("persistData (First render with persisted data, group)", {
     app: require("./ReactGroupPersistDataApp").default,
     path: require.resolve("./ReactGroupPersistDataApp"),
 });
 
 
-group.add("persistData (First render with persisted data, individual group)", {
+export const OptionsPersistDataIndividualGroup = add(`persistData (First render with persisted data, individual group)`, {
     app: require("./ReactIndividualGroupPersistDataApp").default,
     path: require.resolve("./ReactIndividualGroupPersistDataApp"),
 });
 
-group.add("rootContainer (css transformed container)", {
+export const OptionsRootContainer = add("rootContainer (css transformed container)", {
     app: require("./ReactTransformedApp").default,
     path: require.resolve("./ReactTransformedApp"),
 });
 
-group.add("rootContainer (css zoomed container)", {
+export const OptionsRootContainerZoom = add("rootContainer (css zoomed container)", {
+    app: require("./ReactRootContainerApp").default,
+    path: require.resolve("./ReactRootContainerApp"),
+});
+
+export const OptionsZoom = add("zoom (line, control)", {
     app: require("./ReactZoomApp").default,
     path: require.resolve("./ReactZoomApp"),
 });
-group.add("useAccuratePosition (Render in a more accurate position)", {
+
+
+export const OptionsAccuratePosition = add("useAccuratePosition (Render in a more accurate position)", {
     app: require("./ReactUseAccuratePositionApp").default,
     path: require.resolve("./ReactUseAccuratePositionApp"),
+});
+
+
+
+export const OptionsDragTarget = add("other dragTarget", {
+    app: require("./ReactDragTargetApp").default,
+    path: require.resolve("./ReactDragTargetApp"),
+});
+
+
+
+export const OptionsDragTargetSelf = add("dragTargetSelf with other dragTarget", {
+    app: require("./ReactDragTargetSelfApp").default,
+    path: require.resolve("./ReactDragTargetSelfApp"),
 });

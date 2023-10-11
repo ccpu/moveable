@@ -26,9 +26,6 @@ export default function App(props: Record<string, any>) {
                     snappable={props.snappable}
                     bounds={props.bounds}
                     edge={props.edge}
-                    onBeforeRenderStart={e => {
-                        e.setTransform(e.target.style.transform);
-                    }}
                     onDrag={e => {
                         e.target.style.transform = e.transform;
                     }}
@@ -36,6 +33,9 @@ export default function App(props: Record<string, any>) {
                         e.target.style.width = `${e.width}px`;
                         e.target.style.height = `${e.height}px`;
                         e.target.style.transform = e.drag.transform;
+                    }}
+                    onBound={e => {
+                        console.log(e);
                     }}
                 />
             </div>

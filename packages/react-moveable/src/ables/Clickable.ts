@@ -7,13 +7,13 @@ import { findIndex } from "@daybrush/utils";
 import { makeAble } from "./AbleManager";
 
 export default makeAble("clickable", {
-    props: {
-        clickable: Boolean,
-    },
-    events: {
-        onClick: "click",
-        onClickGroup: "clickGroup",
-    } as const,
+    props: [
+        "clickable",
+    ] as const,
+    events: [
+        "click",
+        "clickGroup",
+    ] as const,
     always: true,
     dragRelation: "weak",
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -31,7 +31,7 @@ export default makeAble("clickable", {
         const inputEvent = e.inputEvent;
         const inputTarget = e.inputTarget;
         const isMoveableElement = moveable.isMoveableElement(inputTarget);
-        const containsElement = !isMoveableElement && moveable.controlBox.getElement().contains(inputTarget);
+        const containsElement = !isMoveableElement && moveable.controlBox.contains(inputTarget);
 
         if (
             !inputEvent || !inputTarget || e.isDrag

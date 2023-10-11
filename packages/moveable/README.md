@@ -31,48 +31,48 @@
 <th colspan="4">Moveable</th>
 </tr>
 <tr>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--draggable"><strong>Draggable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--resizable"><strong>Resizable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--scalable"><strong>Scalable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--rotatable"><strong>Rotatable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-draggable"><strong>Draggable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-resizable"><strong>Resizable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-scalable"><strong>Scalable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-rotatable"><strong>Rotatable</strong></a></td>
 </tr>
 <tr>
 <td align="center">
-<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/draggable.gif">
+<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/draggable.gif"/>
 </td>
 <td align="center">
-<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/resizable.gif">
+<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/resizable.gif"/>
 </td>
 <td align="center">
-<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/scalable.gif">
+<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/scalable.gif"/>
 </td>
 <td align="center">
-<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/rotatable.gif">
+<img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/rotatable.gif"/>
 </td>
 </tr>
 <tr>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--warpable"><strong>Warpable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-warpable"><strong>Warpable</strong></a></td>
 <td align="center"><a href="https://daybrush.com/moveable/release/latest/doc/Moveable.Pinchable.html"><strong>Pinchable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/group--draggable"><strong>Groupable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/use-snap-bounds-with-ables--snap-guidelines-elements"><strong>Snappable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/group--group-draggable-resizable-rotatable"><strong>Groupable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/snap-bound--snap-guidelines"><strong>Snappable</strong></a></td>
 </tr>
 <tr>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/warpable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/pinchable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/groupable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/snappable.gif"></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/warpable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/pinchable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/groupable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/snappable.gif"/></td>
 </tr>
 <tr>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--clippable"><strong>Clippable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--roundable"><strong>Roundable</strong></a></td>
-<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--origindraggable"><strong>OriginDraggable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-clippable"><strong>Clippable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-roundable"><strong>Roundable</strong></a></td>
+<td align="center"><a href="https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-origin-draggable"><strong>OriginDraggable</strong></a></td>
 <td align="center"><a href="https://github.com/daybrush/selecto"><strong>Selecto</strong></a></td>
 </tr>
 <tr>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/clippable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/roundable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/origindraggable.gif"></td>
-<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/selecto.gif"></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/clippable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/roundable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/origindraggable.gif"/></td>
+<td align="center"><img src="https://raw.githubusercontent.com/daybrush/moveable/master/demo/images/selecto.gif"/></td>
 </tr>
 </table>
 
@@ -244,7 +244,7 @@ moveable.on("pinchStart", ({ target, clientX, clientY }) => {
 ## ⚙️ Developments
 The `moveable` repo is managed as a [monorepo](https://github.com/lerna/lerna) with `yarn`.
 
-The main project was made with `react` and I used [`react-simple-compat`](https://github.com/daybrush/react-simple-compat) to make it lighter with umd.
+The main project was made with `react` and I used [`croact`](https://github.com/daybrush/croact) to make it lighter with umd.
 
 For development and testing, check in [packages/react-moveable](https://github.com/daybrush/moveable/blob/master/packages/react-moveable).
 
@@ -256,10 +256,10 @@ $ npm run bootstrap
 $ npm run storybook
 ```
 
-Runs the app in the development mode.<br>
+Runs the app in the development mode.<br/>
 Open [http://localhost:6006](http://localhost:6006) to view it in the browser.
 
-The page will reload if you make edits.<br>
+The page will reload if you make edits.<br/>
 You will also see any lint errors in the console.
 
 ## ⭐️ Show Your Support

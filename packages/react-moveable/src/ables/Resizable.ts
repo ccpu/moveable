@@ -11,15 +11,14 @@ import {
     fillAfterTransform,
     getDirectionViewClassName,
     getTotalDirection,
+    abs,
 } from "../utils";
 import {
     setDragStart,
     getResizeDist,
     getAbsolutePosition,
-    getPosByDirection,
     getNextMatrix,
     getNextTransforms,
-    getDirectionByPos,
 } from "../gesto/GestoUtils";
 import {
     ResizableProps, OnResizeGroup, OnResizeGroupEnd,
@@ -30,6 +29,7 @@ import {
 import { getRenderDirections } from "../renderDirections";
 import {
     fillChildEvents,
+    startChildDist,
     triggerChildAbles,
 } from "../groupUtils";
 import Draggable from "./Draggable";
@@ -44,6 +44,7 @@ import {
 } from "@daybrush/utils";
 import { TINY_NUM } from "../consts";
 import { parseMat } from "css-to-mat";
+import { getFixedDirectionInfo, getOffsetFixedPositionInfo } from "../utils/getFixedDirection";
 
 /**
  * @namespace Resizable
@@ -57,27 +58,27 @@ export default {
     name: "resizable",
     ableGroup: "size",
     canPinch: true,
-    props: {
-        resizable: Boolean,
-        throttleResize: Number,
-        renderDirections: Array,
-        keepRatio: Boolean,
-        resizeFormat: Function,
-        keepRatioFinally: Boolean,
-        edge: Boolean,
-        checkResizableError: Boolean,
-    } as const,
-    events: {
-        onResizeStart: "resizeStart",
-        onBeforeResize: "beforeResize",
-        onResize: "resize",
-        onResizeEnd: "resizeEnd",
-
-        onResizeGroupStart: "resizeGroupStart",
-        onBeforeResizeGroup: "beforeResizeGroup",
-        onResizeGroup: "resizeGroup",
-        onResizeGroupEnd: "resizeGroupEnd",
-    } as const,
+    props: [
+        "resizable",
+        "throttleResize",
+        "renderDirections",
+        "displayAroundControls",
+        "keepRatio",
+        "resizeFormat",
+        "keepRatioFinally",
+        "edge",
+        "checkResizableError",
+    ] as const,
+    events: [
+        "resizeStart",
+        "beforeResize",
+        "resize",
+        "resizeEnd",
+        "resizeGroupStart",
+        "beforeResizeGroup",
+        "resizeGroup",
+        "resizeGroupEnd",
+    ] as const,
     render: getRenderDirections("resizable"),
     dragControlCondition: directionCondition,
     viewClassName: getDirectionViewClassName("resizable"),
@@ -158,17 +159,18 @@ export default {
         datas.startPositions = getAbsolutePosesByState(moveable.state);
 
         function setFixedDirection(fixedDirection: number[]) {
-            datas.fixedDirection = fixedDirection;
-            datas.fixedPosition = getPosByDirection(datas.startPositions, fixedDirection);
+            const result = getFixedDirectionInfo(datas.startPositions, fixedDirection);
+
+            datas.fixedDirection = result.fixedDirection;
+            datas.fixedPosition = result.fixedPosition;
+            datas.fixedOffset = result.fixedOffset;
         }
         function setFixedPosition(fixedPosition: number[]) {
-            const {
-                width,
-                height,
-            } = moveable.state;
+            const result = getOffsetFixedPositionInfo(moveable.state, fixedPosition);
 
-            datas.fixedPosition = fixedPosition;
-            datas.fixedDirection = getDirectionByPos(fixedPosition, width, height);
+            datas.fixedDirection = result.fixedDirection;
+            datas.fixedPosition = result.fixedPosition;
+            datas.fixedOffset = result.fixedOffset;
         }
         function setMin(minSize: Array<string | number>)  {
             datas.minSize = [
@@ -241,6 +243,7 @@ export default {
             parentKeepRatio,
             dragClient,
             parentDist,
+            useSnap,
             isRequest,
             isGroup,
             parentEvent,
@@ -382,7 +385,7 @@ export default {
                 boundingHeight,
                 direction,
                 fixedPosition,
-                isRequest,
+                !useSnap && isRequest,
                 datas,
             );
         }
@@ -400,7 +403,7 @@ export default {
         }
         if (keepRatio) {
             if (sizeDirection[0] && sizeDirection[1] && snapDist[0] && snapDist[1]) {
-                if (Math.abs(snapDist[0]) > Math.abs(snapDist[1])) {
+                if (abs(snapDist[0]) > abs(snapDist[1])) {
                     snapDist[1] = 0;
                 } else {
                     snapDist[0] = 0;
@@ -525,8 +528,8 @@ export default {
         } = moveable.state;
         const errorWidth = width - (startOffsetWidth + prevWidth);
         const errorHeight = height - (startOffsetHeight + prevHeight);
-        const isErrorWidth = Math.abs(errorWidth) > 3;
-        const isErrorHeight = Math.abs(errorHeight) > 3;
+        const isErrorWidth = abs(errorWidth) > 3;
+        const isErrorHeight = abs(errorHeight) > 3;
 
         if (isErrorWidth) {
             datas.startWidth += errorWidth;
@@ -565,22 +568,6 @@ export default {
             return false;
         }
         const originalEvents = fillChildEvents(moveable, "resizable", e);
-        function setDist(child: MoveableManagerInterface, ev: any) {
-            const fixedDirection = datas.fixedDirection;
-            const fixedPosition = datas.fixedPosition;
-
-            const startPositions = ev.datas.startPositions || getAbsolutePosesByState(child.state);
-            const pos = getPosByDirection(startPositions, fixedDirection);
-            const [originalX, originalY] = calculate(
-                createRotateMatrix(-moveable.rotation / 180 * Math.PI, 3),
-                [pos[0] - fixedPosition[0], pos[1] - fixedPosition[1], 1],
-                3,
-            );
-            ev.datas.originalX = originalX;
-            ev.datas.originalY = originalY;
-
-            return ev;
-        }
         const {
             startOffsetWidth: parentStartOffsetWidth,
             startOffsetHeight: parentStartOffsetHeight,
@@ -629,7 +616,7 @@ export default {
             "dragControlStart",
             e,
             (child, ev) => {
-                return setDist(child, ev);
+                return startChildDist(moveable, child, datas, ev);
             },
         );
 
@@ -641,7 +628,7 @@ export default {
             params.setFixedDirection(fixedDirection);
             events.forEach((ev, i) => {
                 ev.setFixedDirection(fixedDirection);
-                setDist(ev.moveable, originalEvents[i]);
+                startChildDist(moveable, ev.moveable, datas, originalEvents[i]);
             });
         };
 
@@ -798,12 +785,19 @@ export default {
         const datas: Record<string, any> = {};
         let distWidth = 0;
         let distHeight = 0;
+        let useSnap = false;
         const rect = moveable.getRect();
 
         return {
             isControl: true,
             requestStart(e: ResizableRequestParam) {
-                return { datas, parentDirection: e.direction || [1, 1], parentIsWidth: e?.horizontal ?? true };
+                useSnap = e.useSnap!;
+
+                return {
+                    datas, parentDirection: e.direction || [1, 1],
+                    parentIsWidth: e?.horizontal ?? true,
+                    useSnap,
+                };
             },
             request(e: ResizableRequestParam) {
                 if ("offsetWidth" in e) {
@@ -818,10 +812,15 @@ export default {
                 }
 
 
-                return { datas, parentDist: [distWidth, distHeight], parentKeepRatio: e.keepRatio };
+                return {
+                    datas,
+                    parentDist: [distWidth, distHeight],
+                    parentKeepRatio: e.keepRatio,
+                    useSnap,
+                };
             },
             requestEnd() {
-                return { datas, isDrag: true };
+                return { datas, isDrag: true, useSnap };
             },
         };
     },

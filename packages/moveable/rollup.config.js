@@ -1,15 +1,15 @@
 
-import builder from "@daybrush/builder";
-import compat from "rollup-plugin-react-compat";
+const builder = require("@daybrush/builder");
+const compat = require("rollup-plugin-react-compat");
 
 const compatPlugin = compat({
-    useReactCompat: true,
+    useCroact: true,
     aliasModules: {
-        "react-moveable": "react-compat-moveable"
+        "react-moveable": "croact-moveable"
     }
 });
 const resolveCompatPlugin = compat({
-    useReactCompat: true,
+    useCroact: true,
     resolveCompat: true,
 });
 /*
@@ -19,10 +19,10 @@ const resolveCompatPlugin = compat({
     "release:before": "npm run build && npm run doc && npm run demo:build && npm run storybook",
 */
 const external = {
-    "react-simple-compat": "react-simple-compat",
-    "react-compat-ruler": "react-compat-ruler",
-    "react-compat-moveable": "react-compat-moveable",
-    "react-compat-css-styled": "react-compat-css-styled",
+    "croact": "croact",
+    "croact-ruler": "croact-ruler",
+    "croact-moveable": "croact-moveable",
+    "croact-css-styled": "croact-css-styled",
     "@daybrush/utils": "utils",
     "css-styled": "css-styled",
     "framework-utils": "framework-utils",
@@ -37,14 +37,16 @@ const external = {
     "@scena/matrix": "@scena/matrix",
     "@egjs/list-differ": "eg.ListDiffer",
 };
-export default builder([
+module.exports = builder([
     {
         name: "Moveable",
         input: "src/index.umd.ts",
         output: "./dist/moveable.js",
         exports: "default",
         format: "umd",
+        minifyPrototype: true,
         plugins: [resolveCompatPlugin],
+        typescript2: true,
     },
     {
         name: "Moveable",
@@ -52,23 +54,29 @@ export default builder([
         output: "./dist/moveable.min.js",
         exports: "default",
         format: "umd",
+        minifyPrototype: true,
         plugins: [resolveCompatPlugin],
         uglify: true,
+        typescript2: true,
     },
     {
         input: "src/index.ts",
         output: "./dist/moveable.esm.js",
         exports: "named",
         format: "es",
+        minifyPrototype: true,
         plugins: [compatPlugin],
         external,
+        typescript2: true,
     },
     {
         input: "src/index.cjs.ts",
         output: "./dist/moveable.cjs.js",
         exports: "named",
         format: "cjs",
+        minifyPrototype: true,
         plugins: [compatPlugin],
         external,
+
     },
 ]);

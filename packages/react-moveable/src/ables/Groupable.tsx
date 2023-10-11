@@ -3,26 +3,27 @@ import { refs } from "framework-utils";
 import MoveableManager from "../MoveableManager";
 import { renderLine } from "../renderDirections";
 import { Renderer, MoveableGroupInterface, GroupableProps } from "../types";
-import { flat } from "../utils";
+import { flat, watchValue } from "../utils";
+
+
 
 export default {
     name: "groupable",
-    props: {
-        defaultGroupRotate: Number,
-        defaultGroupOrigin: String,
-        groupable: Boolean,
-        groupableProps: Object,
-        targetGroups: Object,
-        hideChildMoveableDefaultLines: Boolean,
-    } as const,
-    events: {} as const,
+    props: [
+        "defaultGroupRotate",
+        "useDefaultGroupRotate",
+        "defaultGroupOrigin",
+        "groupable",
+        "groupableProps",
+        "targetGroups",
+        "hideChildMoveableDefaultLines",
+    ] as const,
+    events: [] as const,
     render(moveable: MoveableGroupInterface<GroupableProps>, React: Renderer): any[] {
         const props = moveable.props;
         let targets: Array<HTMLElement | SVGElement | undefined | null> = props.targets || [];
 
-        moveable.moveables = [];
         const { left, top, isPersisted } = moveable.getState();
-        const position = [left, top];
         const zoom = props.zoom || 1;
         const renderGroupRects = moveable.renderGroupRects;
         let persistDatChildren = props.persistData?.children || [];
@@ -32,7 +33,20 @@ export default {
         } else {
             persistDatChildren = [];
         }
+        const parentPosition = watchValue(
+            moveable,
+            "parentPosition",
+            [left, top],
+            styles => styles.join(","),
+        );
+        const requestStyles = watchValue(
+            moveable,
+            "requestStyles",
+            moveable.getRequestChildStyles(),
+            styles => styles.join(","),
+        );
 
+        moveable.moveables = moveable.moveables.slice(0, targets.length);
         return [
             ...targets.map((target, i) => {
                 return <MoveableManager<GroupableProps>
@@ -40,12 +54,14 @@ export default {
                     ref={refs(moveable, "moveables", i)}
                     target={target}
                     origin={false}
+                    requestStyles={requestStyles}
                     cssStyled={props.cssStyled}
                     customStyledMap={props.customStyledMap}
                     useResizeObserver={props.useResizeObserver}
+                    useMutationObserver={props.useMutationObserver}
                     hideChildMoveableDefaultLines={props.hideChildMoveableDefaultLines}
                     parentMoveable={moveable}
-                    parentPosition={position}
+                    parentPosition={[left, top]}
                     persistData={persistDatChildren[i]}
                     zoom={zoom}
                 />;
@@ -62,8 +78,8 @@ export default {
                     return renderLine(
                         React,
                         "",
-                        minus(poses[from], position),
-                        minus(poses[to], position),
+                        minus(poses[from], parentPosition),
+                        minus(poses[to], parentPosition),
                         zoom,
                         `group-rect-${i}-${j}`,
                     );
